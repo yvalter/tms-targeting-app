@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MRI-free TMS Targeting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;600&family=Raleway:wght@600&family=Libre+Baskerville&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Lato', 'Segoe UI', sans-serif;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Raleway', 'Segoe UI', sans-serif;
+            font-weight: 600;
+        }
+
+        .form-label, .form-check-label {
+            font-family: 'Lato', 'Segoe UI', sans-serif;
+            font-weight: 500;
+        }
+
+        .references, .modal-body {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        body { 
+            padding: 15px; 
+            background-color: #1e6091;
+        }
+        .main-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 8px;
+        }
+        h3 {
+            color: #495057;
+            font-weight: 400;
+            font-size: 0.8rem;
+            padding-bottom: 5px;
+        }
+
+        h4 { 
+            color: #495057;
+            font-weight: 400;
+            font-size: 1.6rem;
+            padding-bottom: 5px;
+        }
+
+        .form-label {
+            font-weight: 400;
+            color: #495057;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            font-size: 1.2rem; 
+        }
+        
+        .form-check-label {
+            font-weight: 400;
+            color: #495057;
+            font-size: 1.2rem;
+        }
+
+        .btn-primary {
+            background-color: #1e6091;
+            border-color: #0069a3;
+            padding: 10px 20px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #64B5F6;
+            border-color: #0066cc;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 5px;
+            font-size: 0.875em;
+        }
+        .measurement-input {
+            width: 90px;
+            display: inline-block;
+            border: 2px solid #1e6091;
+            border-radius: 6px;
+            font-size: 1.2rem
+        }
+        #results-box .table td.spacer {
+            background-color: transparent !important;
+            border: none !important;
+            background-image: none !important;
+        }
+
+        .step3-placeholder {
+        color: #6c757d;
+        font-style: italic;
+        text-align: center;
+        padding: 5px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        }
+        .measurement-container {
+            position: relative;
+        }
+        .measurement-container:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -10px;
+            top: 16.5%;
+            height: 67%;
+            width: 1px;
+            background-color: #e0e0e0;
+        }
+        .text-center.mt-2 {
+            margin-top: 0.75rem !important;
+        }
+        
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #4caf50;
+            animation: progress 30s linear forwards;
+        }
+        @keyframes progress {
+            from { width: 0; }
+            to { width: 90%; }
+        }
+        .hidden {
+            display: none;
+        }
+
+        .measurement-section {
+            display: flex;
+            flex-direction: column; 
+            gap: 10px; /* Space between the three sections */
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            background-color: #ffffff;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .measurement-row {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+        .form-container, .step3-container {
+            border: 1px solid #e0e0e0;
+            padding: 15px;  
+            background-color: #ffffff;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .measurement-image {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+        }
+
+        .measurement-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 10px;
+        }
+
+        .measurement-input-section {
+        flex: 1;
+        text-align: center;
+        margin-bottom: 5px;
+        }
+
+        .measurement-image-section {
+            position: relative; /* allows absolute positioning inside */
+            display: inline-block;
+        }
+
+        .measurement-image-section .info-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 12px;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+        }
+
+        .measurement-figure {
+        max-width: 100%;
+        height: auto;
+        max-height: 150px;
+        border-radius: 2px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .measurement-row {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .measurement-input-section {
+                margin-bottom: 5px;
+            }
+
+            .measurement-image-section {
+                order: 0; /* Ensure image stays below */
+            }
+
+            .measurement-figure {
+                max-height: 120px;
+            }
+            .measurement-container:not(:last-child)::after {
+                display: none;
+            }
+        }
+        .references { 
+            margin-top: 20px;
+            background: transparent;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: none;
+            font-size: 0.8rem;
+            color: white;
+        }
+        #target-coordinates { 
+            display: none; 
+        }
+
+        #results-box { 
+            margin-top: 20px;
+            box-shadow: none;
+            border-radius: none;
+            overflow: hidden;
+            border: none;
+        }
+
+        #results-box .card-body {
+            padding: 0;
+            box-shadow: none;
+            border-radius: none;
+            border: none;
+            border-bottom: none !important;
+        }
+
+        #results-box .table {
+            margin-bottom: 0; 
+            font-size: 1.2rem
+        }
+        #results-box .table th {
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+            padding: 15px 10px;
+            border: none;
+            border-bottom: none !important
+        }
+        #image-placeholder {
+            margin-top: 10px;
+        }
+
+        #viewer-container {
+            border-top: none !important;
+            margin-top: 0 !important;
+        }
+        #results-box .table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 20px 15px;
+            border: none;
+            font-weight: 500;
+            font-size: 1.2rem;
+        }
+        #results-box .table td,
+        #results-box .table th {
+            font-family: 'Open Sans', 'Roboto Mono', sans-serif;
+            letter-spacing: 0.5px;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        #zoom-controls {
+            position: absolute;
+            top: 70px;
+            right: 25px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+        }
+
+        #zoom-controls .btn {
+            display: inline-block;
+        }
+
+        #results-box .table td:first-child {
+            background-color: #f8f9fa;
+        }
+        #results-box .table td:last-child {
+            background-color: #e3f2fd;
+        }
+
+        .results-table th {
+            font-weight: normal;
+        }
+        .results-table td {
+            font-size: 1.1rem;
+            padding: 10px;
+        }
+
+        .info-icon {
+            background-color: #a3a4a5;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            cursor: pointer;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .info-icon:hover {
+            background-color: #64B5F6;
+        }
+        .measurement-input-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px; /* space between input and cm */
+        }
+
+        .unit-label {
+        font-size: 1.2rem;
+        color: #495057;
+        font-weight: 500;
+        min-width: 25px; 
+        }
+
+        .form-check-input {
+            border: 2px solid #495057;
+            width: 1.2em; 
+            height: 1.2em;
+        }
+
+        .form-check-input:checked {
+            background-color: #1e6091;
+            border-color: #1e6091;
+        }
+
+        #viewer-3d {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 8px;
+            background-color: #111111;
+            margin-top: 10px;
+            position: relative;
+        }
+
+        #viewer-error {
+            display: none;
+            color: #dc3545;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+        }
+
+        #loading { 
+            display: none; 
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-container">
+        <h1>Neuronavigation-free TMS Targeting</h1>        
+        <form id="tms-form">
+            <div class="measurement-section">
+            <h4 class="section-title">Step 1: Enter anatomical measurements</h4>
+            <div class="measurement-row">
+
+                <!-- Nasion-Inion -->
+                <div class="measurement-container">
+                <div class="measurement-input-section">
+                    <label for="nasion_inion" class="form-label">Nasion-Inion</label>
+                    <div class="measurement-input-wrapper">
+                    <input type="number" step="0.1" min="0"
+                            class="form-control measurement-input"
+                            id="nasion_inion" name="nasion_inion" required>
+                    <span class="unit-label">cm</span>
+                    </div>
+                    <div class="error-message" id="nasion_inion_error" style="display: none;"></div>
+                </div>
+                <div class="measurement-image-section">
+                    <img src="/static/nasion-inion.jpg"
+                        alt="Nasion-Inion Distance Measurement"
+                        class="measurement-figure">
+                </div>
+                </div>
+
+                <!-- Tragus-Tragus -->
+                <div class="measurement-container">
+                <div class="measurement-input-section">
+                    <label for="tragus_tragus" class="form-label">Tragus-Tragus</label>
+                    <div class="measurement-input-wrapper">
+                    <input type="number" step="0.1" min="0"
+                            class="form-control measurement-input"
+                            id="tragus_tragus" name="tragus_tragus" required>
+                    <span class="unit-label">cm</span>
+                    </div>
+                    <div class="error-message" id="tragus_tragus_error" style="display: none;"></div>
+                </div>
+                <div class="measurement-image-section">
+                    <img src="/static/tragus_tragus.jpg"
+                        alt="Tragus-Tragus Distance Measurement"
+                        class="measurement-figure">
+                </div>
+                </div>
+
+                <!-- Head Circumference -->
+                <div class="measurement-container">
+                <div class="measurement-input-section">
+                    <label for="head_circ" class="form-label">Circumference</label>
+                    <div class="measurement-input-wrapper">
+                    <input type="number" step="0.1" min="0"
+                            class="form-control measurement-input"
+                            id="head_circ" name="head_circ" required>
+                    <span class="unit-label">cm</span>
+                    </div>
+                    <div class="error-message" id="head_circ_error" style="display: none;"></div>
+                </div>
+                <div class="measurement-image-section">
+                    <img src="/static/head_circumference.jpg"
+                        alt="Head Circumference Measurement"
+                        class="measurement-figure">
+
+                    <!-- Info icon overlay -->
+                    <span class="info-icon" data-bs-toggle="modal" data-bs-target="#headCircModal">i</span>
+                </div>
+                </div>
+
+            </div>
+            </div>
+
+
+            <div class="form-container">
+                <div class="mb-3">
+                    <h4 class="section-title">Step 2: Choose targeting method</h4>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="result_type" id="f3" value="f3" checked>
+                        <label class="form-check-label" for="f3">Beam-F3*</label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="result_type" id="valter" value="valter">
+                        <label class="form-check-label" for="valter">Valter-MNI** (left DLPFC or any target, head model creation takes about 20 sec)</label>
+                    </div>
+                </div>
+                
+                <div id="target-coordinates" class="mb-3">
+                    <label class="form-label">TMS Target</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="target_choice" id="default" value="default" checked>
+                        <label class="form-check-label" for="default">Default left DLPFC***</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="target_choice" id="custom" value="custom">
+                        <label class="form-check-label" for="custom">Other (enter brain MNI coordinates)</label>
+                    </div>
+                    <div id="custom-coordinates" style="display: none;">
+                        <div class="mb-3">
+                            <label for="point_x" class="form-label">X Coordinate:</label>
+                            <input type="number" step="0.1" class="form-control" id="point_x" name="point_x">
+                        </div>
+                        <div class="mb-3">
+                            <label for="point_y" class="form-label">Y Coordinate:</label>
+                            <input type="number" step="0.1" class="form-control" id="point_y" name="point_y">
+                        </div>
+                        <div class="mb-3">
+                            <label for="point_z" class="form-label">Z Coordinate:</label>
+                            <input type="number" step="0.1" class="form-control" id="point_z" name="point_z">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="step3-container">
+            <h4 class="section-title">Step 3: Position TMS coil at the red X</h4>
+            <div id="progress-container" class="progress-container">
+                <div class="progress-bar"></div>
+            </div>
+                <div id="loading" class="alert alert-info" role="alert">
+                <div class="d-flex align-items-center">
+                    <span id="loading-text">Computing head dimensions...</span>
+                </div>
+            </div>
+            <div id="results-box" class="card">
+                <div class="card-body">
+                    <table class="table table-striped">
+                    <thead class="table">
+                        <tr>
+                            <th scope="col" style="background-color: #1b3069; color: #ffffff;">Distance along circumference <br> from midline</th>
+                            <th class="spacer"></th>
+                            <th scope="col" style="background-color: #2c5504; color: #ffffff;">Distance from vertex</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-table">
+                        <tr>
+                            <td id="circumferential-result" style="background-color: #e3f2fd">--- cm</td>
+                            <td class="spacer"></td>
+                            <td id="vertex-result" style="background-color: #e6ffed">--- cm</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                    <div id="image-placeholder">
+                        <img src="/static/viewer_image.jpg" alt="TMS Targeting Result" class="img-fluid" style="width: 100%;">
+                    </div>
+                    
+                    <!-- 3D Viewer -->
+                    <div id="viewer-container" style="display: none; margin-top: 10px; padding: 0px; position: relative;">
+                        <div class="text-center mt-2" style="color: #6c757d; font-size: 1.2rem;">
+                            Patient's 3D Head Model
+                        </div>
+                        <div id="viewer-3d"></div>
+                            <div id="zoom-controls">
+                                <div style="color: black; font-size: 0.9rem; text-align: center; margin-bottom: 5px;">Zoom</div>
+                                <div style="display: flex; gap: 5px;">
+                                    <button type="button" id="zoom-in" class="btn btn-secondary" title="Zoom In">+</button>
+                                    <button type="button" id="zoom-out" class="btn btn-secondary" title="Zoom Out">-</button>
+                                </div>
+                                <div style="color: black; font-size: 0.9rem; text-align: center; margin-bottom: 5px; margin-top: 15px;">Rotate</div>
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                                    <button type="button" id="rotate-up" class="btn btn-secondary" title="Rotate Up">^</button>
+                                    <div style="display: flex; gap: 5px;">
+                                        <button type="button" id="rotate-left" class="btn btn-secondary" title="Rotate Left">&lt;</button>
+                                        <button type="button" id="rotate-right" class="btn btn-secondary" title="Rotate Right">&gt;</button>
+                                    </div>
+                                    <button type="button" id="rotate-down" class="btn btn-secondary" title="Rotate Down">v</button>
+                                </div>
+                            </div>
+                        <div id="viewer-error"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="headCircModal" tabindex="-1" aria-labelledby="headCircModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="headCircModalLabel">How to accurately measure head circumference</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ol>
+                            <li>Locate Fpz and Oz at 10% of the distance between nasion and inion.</li>
+                            <li>Wrap the tape measure around the head passing over Fpz and Oz</li>
+                        </ol>
+                            <div class="text-center mb-3">
+                                <img src="/static/side.jpg" alt="Head Circumference Measurement" class="img-fluid" style="max-width: 100%; border-radius: 8px;">
+                            </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="references">         
+            <p>References and Notes</p>
+            <p>*Implements the web-version of Beam-F3<sup>1</sup> including the adjustment of Mir-Moghtadaei et al.<sup>2</sup> Code was obtained directly from the developers of the web Beam-F3 program.</p>
+            <p>**Implements MRI-free head modeling approach of Valter et al.<sup>3</sup></p>
+            <p> ***MNI brain coordinates [-38, 44, 26] based on Fox et al.<sup>4</sup><p>    
+            <p>1. Beam W, Borckardt JJ, Reeves ST, George MS. An efficient and accurate new method for locating the F3 position for prefrontal TMS applications. Brain Stimul. 2009 Jan;2(1):50-4. doi: 10.1016/j.brs.2008.09.006.</p>
+            <p>2. Mir-Moghtadaei A, Caballero R, Fried P, Fox MD, Lee K, Giacobbe P, Daskalakis ZJ, Blumberger DM, Downar J. Concordance Between BeamF3 and MRI-neuronavigated Target Sites for Repetitive Transcranial Magnetic Stimulation of the Left Dorsolateral Prefrontal Cortex. Brain Stimul. 2015 Sep-Oct;8(5):965-73. doi: 10.1016/j.brs.2015.05.008.</p>
+            <p>3. Valter, Y., Truong, D. Q., Kawasumi, Y., Bikson, M., & Datta, A. (2025). TMS targeting using MRI-free head modeling. Transcranial Magnetic Stimulation, 5100188.</p>
+            <p>4. Fox, M. D., Buckner, R. L., White, M. P., Greicius, M. D., & Pascual-Leone, A. (2012). Efficacy of transcranial magnetic stimulation targets for depression is related to intrinsic functional connectivity with the subgenual cingulate. Biological Psychiatry, 72(7), 595â€“603. https://doi.org/10.1016/j.biopsych.2012.04.028</p>
+            <p>Developed by Yushi Kawasumi & Yishai Valter with research support from the NIMH and Soterix Medical<p>
+            <p>Disclaimer: Information provided by this website is not medical advice.<p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for 3D viewer
+        let scene, camera, renderer, mesh, brainMesh, targetMarker, rawTargetMarker, vertexMarker;
+        let pathLines = [];
+        let arrowCones = [];
+        let isMouseDown = false;
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+        let cameraDistance = 150;
+
+        function init3DViewer() {
+            const viewerElement = document.getElementById('viewer-3d');
+            if (!viewerElement) return;
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xffffff);
+            
+            camera = new THREE.PerspectiveCamera(60, viewerElement.clientWidth / viewerElement.clientHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(viewerElement.clientWidth, viewerElement.clientHeight);
+            viewerElement.appendChild(renderer.domElement);
+
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+            scene.add(hemiLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(50, 100, 75);
+            scene.add(dirLight);
+
+            setupMouseControls(viewerElement);
+            animate();
+        }
+        
+        function setupMouseControls(element) {
+            element.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            element.addEventListener('mousemove', (e) => {
+                if (!isMouseDown) return;
+                const deltaX = e.clientX - mouseX;
+                const deltaY = e.clientY - mouseY;
+                targetX -= deltaX * 0.01;
+                targetY += deltaY * 0.01;
+                targetY = Math.max(-1.0, Math.min(1.0, targetY));
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            element.addEventListener('mouseup', () => {
+                isMouseDown = false;
+            });
+
+            element.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                cameraDistance += e.deltaY * 0.1;
+                cameraDistance = Math.max(50, Math.min(500, cameraDistance));
+            });
+        }
+
+        function updateCamera() {
+            if (!camera) return;
+            camera.position.x = Math.sin(targetX) * cameraDistance;
+            camera.position.z = Math.cos(targetX) * cameraDistance;
+            camera.position.y = Math.sin(targetY) * cameraDistance;
+            camera.lookAt(0, 0, 0);
+        }
+
+        function animate() {
+            if (!renderer || !scene || !camera) return;
+            requestAnimationFrame(animate);
+            updateCamera();
+            renderer.render(scene, camera);
+        }
+
+        // STL Loader
+        function loadSTL(url, onLoad, onError) {
+            const loader = new THREE.FileLoader();
+            loader.setResponseType('arraybuffer');
+            
+            loader.load(url, function(data) {
+                try {
+                    const geometry = parseSTL(data);
+                    onLoad(geometry);
+                } catch (error) {
+                    onError(error);
+                }
+            }, undefined, onError);
+        }
+
+        function parseSTL(data) {
+            const geometry = new THREE.BufferGeometry();
+            const dataView = new DataView(data);
+            
+            const triangleCount = dataView.getUint32(80, true);
+            const vertices = [];
+            const normals = [];
+            
+            let offset = 84;
+            
+            for (let i = 0; i < triangleCount; i++) {
+                // Normal vector
+                const nx = dataView.getFloat32(offset, true);
+                const ny = dataView.getFloat32(offset + 4, true);
+                const nz = dataView.getFloat32(offset + 8, true);
+                offset += 12;
+                
+                // Three vertices
+                for (let j = 0; j < 3; j++) {
+                    const vx = dataView.getFloat32(offset, true);
+                    const vy = dataView.getFloat32(offset + 4, true);
+                    const vz = dataView.getFloat32(offset + 8, true);
+                    
+                    vertices.push(vx, vy, vz);
+                    normals.push(nx, ny, nz);
+                    
+                    offset += 12;
+                }
+                
+                offset += 2; // Skip attribute byte count
+            }
+            
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+            
+            return geometry;
+        }
+        function load3DModel(targetPoint, rawPoint, timestamp, verticalPath, horizontalPath) {
+            if (!scene) {
+                init3DViewer();
+            }
+
+            const stlUrl = '/static/scaled_head.stl?' + timestamp;
+            console.log('Loading STL from:', stlUrl);
+
+            // Clear previous mesh and marker
+            if (mesh) {
+                scene.remove(mesh);
+                mesh = null;
+            }
+
+            if (brainMesh) {
+                scene.remove(brainMesh);
+                brainMesh = null;
+            }
+
+            if (rawTargetMarker) {
+                scene.remove(rawTargetMarker);
+                rawTargetMarker = null;
+            }
+            if (vertexMarker) {
+                scene.remove(vertexMarker);
+                vertexMarker = null;
+            }
+
+            if (targetMarker) {
+                scene.remove(targetMarker);
+                targetMarker = null;
+            }
+
+            pathLines.forEach(line => {
+                scene.remove(line);
+                if (line.geometry) line.geometry.dispose();
+                if (line.material) line.material.dispose();
+            });
+            pathLines = [];
+
+            arrowCones.forEach(cone => {
+                scene.remove(cone);
+                if (cone.geometry) cone.geometry.dispose();
+                if (cone.material) cone.material.dispose();
+            });
+            arrowCones = [];
+
+            console.log('Target point from server:', targetPoint);
+            loadSTL(stlUrl, function (geometry) {
+                console.log('STL loaded successfully');
+        
+                const material = new THREE.MeshPhongMaterial({ 
+                    color: 0xE0AC69, 
+                    specular: 0x111111, 
+                    shininess: 30, 
+                    transparent: true,
+                    opacity: 0.7
+
+                });
+                mesh = new THREE.Mesh(geometry, material);
+                scene.add(mesh);
+
+                // Center and scale the model
+                geometry.computeBoundingBox();
+                const center = geometry.boundingBox.getCenter(new THREE.Vector3());
+                const size = geometry.boundingBox.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 100 / maxDim;
+        
+                mesh.position.sub(center);
+                mesh.scale.set(scale, scale, scale);
+                mesh.rotation.x = -Math.PI / 2;
+                document.getElementById('progress-container').style.display = 'none';
+
+
+            // Load brain STL
+            const brainStlUrl = '/static/scaled_brain.stl?' + timestamp;
+            loadSTL(brainStlUrl, function (brainGeometry) {
+    
+                const brainMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x888888,
+                    specular: 0x111111,
+                    transparent: false,
+                    opacity: 0.9, 
+                    shininess: 30, 
+                });
+                brainMesh = new THREE.Mesh(brainGeometry, brainMaterial);
+                scene.add(brainMesh);
+
+                // Apply same transformations as head mesh (but don't center independently)
+                brainMesh.position.sub(center);  // Use the HEAD's center, not brain's center
+                brainMesh.scale.set(scale, scale, scale);
+                brainMesh.rotation.x = -Math.PI / 2;
+                
+            }, function(error) {
+                console.warn('Could not load brain STL:', error);
+            });
+
+                // Add target marker - FIXED POSITIONING
+                console.log('Target point from server:', targetPoint);
+        
+                mesh.updateMatrixWorld();
+
+                // Create a vector for our target point
+                const adjustedTarget = new THREE.Vector3(
+                    targetPoint[0],
+                    targetPoint[1], 
+                    targetPoint[2]
+                );
+                
+                // Apply the head model's complete transformation matrix to the target point.
+                adjustedTarget.applyMatrix4(mesh.matrixWorld);
+
+                function createXMarker(position, normal, color, size = 4) {
+                    const group = new THREE.Group();
+
+                    // Material for tubes
+                    const material = new THREE.MeshBasicMaterial({ color: color });
+
+                    // First diagonal tube
+                    const path1 = new THREE.CatmullRomCurve3([
+                        new THREE.Vector3(-size, -size, 0),
+                        new THREE.Vector3(size, size, 0)
+                    ]);
+                    const tubeGeometry1 = new THREE.TubeGeometry(path1, 1, 0.5, 8, false);
+                    const tube1 = new THREE.Mesh(tubeGeometry1, material);
+                    group.add(tube1);
+
+                    // Second diagonal tube
+                    const path2 = new THREE.CatmullRomCurve3([
+                        new THREE.Vector3(-size, size, 0),
+                        new THREE.Vector3(size, -size, 0)
+                    ]);
+                    const tubeGeometry2 = new THREE.TubeGeometry(path2, 1, 0.5, 8, false);
+                    const tube2 = new THREE.Mesh(tubeGeometry2, material);
+                    group.add(tube2);
+
+                    // Position the X marker
+                    group.position.copy(position);
+
+                    // Align X with surface normal (so it lies flat on the mesh)
+                    const up = new THREE.Vector3(0, 0, 1);
+                    const quaternion = new THREE.Quaternion();
+                    quaternion.setFromUnitVectors(up, normal.clone().normalize());
+                    group.setRotationFromQuaternion(quaternion);
+
+                    return group;
+                }
+                // Get the surface normal at the target point
+                const raycaster = new THREE.Raycaster();
+                const rayDirection = adjustedTarget.clone().normalize();
+                raycaster.set(new THREE.Vector3(0, 0, 0), rayDirection);
+                const intersects = raycaster.intersectObject(mesh);
+
+                let surfaceNormal = rayDirection; // fallback
+                if (intersects.length > 0) {
+                    surfaceNormal = intersects[0].face.normal.clone();
+                    // Transform the normal to world space
+                    const normalMatrix = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld);
+                    surfaceNormal.applyMatrix3(normalMatrix).normalize();
+                }
+                // Set the marker's final position
+                targetMarker = createXMarker(adjustedTarget, surfaceNormal, 0xff0000, 4);
+                scene.add(targetMarker);
+                console.log('Original target:', targetPoint);
+                console.log('Mesh center:', center);
+                console.log('Mesh scale:', scale);
+                console.log('Final marker position:', adjustedTarget);
+
+                // Add the second marker
+                const rawSphereGeometry = new THREE.SphereGeometry(4, 32, 32);
+                const rawSphereMaterial = new THREE.MeshBasicMaterial({ color: 0x800080 });
+                rawTargetMarker = new THREE.Mesh(rawSphereGeometry, rawSphereMaterial);
+
+                // Create a vector for the raw scaled point
+                const rawTarget = new THREE.Vector3(
+                    rawPoint[0],
+                    rawPoint[1], 
+                    rawPoint[2]
+                );
+        
+                // Apply the EXACT SAME transformation matrix used for the head model and red dot
+                rawTarget.applyMatrix4(mesh.matrixWorld);
+
+                // Set the marker's final position and add it to the scene
+                rawTargetMarker.position.copy(rawTarget);
+                scene.add(rawTargetMarker);
+                console.log('Original raw point:', rawPoint);
+                console.log('Final raw marker position:', rawTarget);
+                // Utility: shorten a polyline by a given distance from its end.
+                // Works on an array of THREE.Vector3 (world-space).
+                function shortenPolylineByDistance(points, distance) {
+                    if (!points || points.length < 2 || distance <= 0) return points;
+
+                    const newPoints = points.map(p => p.clone());
+                    let remaining = distance;
+
+                    // Walk backward over segments
+                    for (let i = newPoints.length - 1; i > 0 && remaining > 0; i--) {
+                        const end = newPoints[i];
+                        const start = newPoints[i - 1];
+                        const segLen = end.distanceTo(start);
+
+                        if (segLen > remaining) {
+                            // Shorten inside this segment
+                            const dir = new THREE.Vector3().subVectors(end, start).normalize();
+                            newPoints[i] = end.clone().sub(dir.multiplyScalar(remaining));
+                            remaining = 0;
+                            break;
+                        } else {
+                            // Drop the last point entirely and continue
+                            newPoints.pop();
+                            remaining -= segLen;
+                        }
+                    }
+
+                    // If we removed too much, keep at least 2 points
+                    if (newPoints.length < 2) return points;
+
+                    return newPoints;
+                }
+                function addArrowHead(scene, startPoint, endPoint, color, size = 3) {
+                    const direction = new THREE.Vector3()
+                        .subVectors(endPoint, startPoint)
+                        .normalize();
+
+                    const coneHeight = size * 2.0;
+                    const coneRadius = size * 0.6;
+                    const coneGeometry = new THREE.ConeGeometry(coneRadius, coneHeight, 16);
+                    const coneMaterial = new THREE.MeshBasicMaterial({
+                        color: color,
+                        // Prefer the arrowhead visually
+                        depthTest: true,
+                        polygonOffset: true,
+                        polygonOffsetFactor: -1,  // pull forward slightly
+                        polygonOffsetUnits: -1
+                    });
+
+                    const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+
+                    // Place cone so its tip is exactly at endPoint, but nudge slightly forward to avoid overlap
+                    const tipNudge = 0.3; // small visual gap so the tip is clearly visible
+                    const halfHeightOffset = direction.clone().multiplyScalar(coneHeight / 2.0);
+                    const forwardNudge = direction.clone().multiplyScalar(tipNudge);
+                    cone.position.copy(endPoint.clone().sub(halfHeightOffset).add(forwardNudge));
+
+                    // Orient cone along direction
+                    const axis = new THREE.Vector3(0, 1, 0); // cone default axis
+                    const quaternion = new THREE.Quaternion().setFromUnitVectors(axis, direction);
+                    cone.setRotationFromQuaternion(quaternion);
+
+                    // Ensure arrow renders after tube
+                    cone.renderOrder = 10;
+
+                    scene.add(cone);
+                    arrowCones.push(cone);
+                    return cone;
+                }
+
+                function addPath(pathPoints, color) {
+                    if (!pathPoints || pathPoints.length < 2) return;
+
+                    const transformedPoints = pathPoints.map(p => {
+                        return new THREE.Vector3(p[0], p[1], p[2]).applyMatrix4(mesh.matrixWorld);
+                    });
+
+                    // Arrowhead parameters (must match addArrowHead)
+                    const arrowSize = 3;
+                    const coneHeight = arrowSize * 2.0;
+
+                    // Instead of removing the full cone height, remove slightly less
+                    // so the tube extends into the cone base
+                    const overlapCompensation = 0.4; // tweak this value
+                    const totalShorten = coneHeight - overlapCompensation;
+
+                    const shortenedPoints = shortenPolylineByDistance(transformedPoints, totalShorten);
+
+                    // Tube geometry
+                    const curve = new THREE.CatmullRomCurve3(shortenedPoints);
+                    const tubularSegments = Math.max(shortenedPoints.length * 2, 32);
+                    const tubeGeometry = new THREE.TubeGeometry(curve, tubularSegments, 0.8, 12, false);
+                    const tubeMaterial = new THREE.MeshBasicMaterial({
+                        color: color,
+                        polygonOffset: true,
+                        polygonOffsetFactor: 1,
+                        polygonOffsetUnits: 1
+                    });
+
+                    const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+                    tube.renderOrder = 0;
+                    scene.add(tube);
+                    pathLines.push(tube);
+
+                    // Arrowhead at true endpoint
+                    const startPoint = transformedPoints[Math.max(transformedPoints.length - 2, 0)];
+                    const endPoint = transformedPoints[transformedPoints.length - 1];
+                    addArrowHead(scene, startPoint, endPoint, color, arrowSize);
+
+                    return tube;
+                }
+
+                console.log("Vertical path:", verticalPath);
+                console.log("Horizontal path:", horizontalPath);
+                var verticalLine = addPath(verticalPath, 0x228B22);
+                var horizontalLine = addPath(horizontalPath, 0x002366);
+                
+                // Add an 'X' marker at the vertex (start of the vertical path)
+                if (verticalPath && verticalPath.length > 0) {
+                    const vertexPoint = new THREE.Vector3(verticalPath[0][0], verticalPath[0][1], verticalPath[0][2]);
+                    vertexPoint.applyMatrix4(mesh.matrixWorld); // Apply same transformation as the mesh
+
+                // Use a simple upward-pointing normal for the vertex
+                const vertexNormal = new THREE.Vector3(0, 1, 0); 
+    
+                // Create and add the marker to the scene
+                vertexMarker = createXMarker(vertexPoint, vertexNormal, 0x228B22, 3); // same as line color
+                scene.add(vertexMarker);
+                }
+                // Add a perpendicular line at the start of the horizontal path to indicate the midline
+                if (horizontalPath && horizontalPath.length > 1) {
+                    // Get the first point of the path and apply the world matrix transformation
+                    const p1_base = new THREE.Vector3(horizontalPath[0][0], horizontalPath[0][1] - 0.4, horizontalPath[0][2]);
+                    const p1 = p1_base.applyMatrix4(mesh.matrixWorld);
+
+                    // Define the start and end points for a simple vertical line
+                    const lineLength = 10; // The total length of the line
+                    const lineStart = new THREE.Vector3(0, lineLength / 2, 0);
+                    const lineEnd = new THREE.Vector3(0, -lineLength / 2, 0);
+
+                    // Rotate the line counterclockwise in the x-z plane
+                    const rotationAxis = new THREE.Vector3(0, 1, 0); // Y-axis (for x-z plane rotation)
+                    const rotationAngle = THREE.MathUtils.degToRad(20);
+    
+                    lineStart.applyAxisAngle(rotationAxis, rotationAngle);
+                    lineEnd.applyAxisAngle(rotationAxis, rotationAngle);
+    
+                    // Translate to the actual position
+                    lineStart.add(p1);
+                    lineEnd.add(p1);
+
+                    // Create and add the tube to the scene
+                        const path = new THREE.CatmullRomCurve3([lineStart, lineEnd]);
+                        const tubeGeometry = new THREE.TubeGeometry(path, 1, 0.5, 8, false);
+                        const tubeMaterial = new THREE.MeshBasicMaterial({
+                            color: 0x002366,
+                            polygonOffset: true,
+                            polygonOffsetFactor: 1,
+                            polygonOffsetUnits: 1
+                        });
+                        const midlineIndicator = new THREE.Mesh(tubeGeometry, tubeMaterial);
+                        scene.add(midlineIndicator);
+
+                        // Add it to our pathLines array so it gets cleaned up on the next run
+                        pathLines.push(midlineIndicator);
+                }
+                
+                // Reset camera
+                cameraDistance = maxDim * 0.5;
+                targetX = Math.PI / 4;
+                targetY = Math.PI / 6;
+                updateCamera();
+        
+                // Hide error message
+                document.getElementById('viewer-error').style.display = 'none';
+            
+            });
+        };
+
+        $(document).ready(function() {
+            // Define the amount to zoom with each click
+            const zoomStep = 15;
+
+            // Event listener for the zoom-in button
+            $('#zoom-in').on('click', function() {
+                cameraDistance -= zoomStep;
+                // Ensure camera doesn't get too close (using the same limit as the scroll wheel)
+                cameraDistance = Math.max(50, cameraDistance);
+            });
+
+            // Event listener for the zoom-out button
+            $('#zoom-out').on('click', function() {
+            cameraDistance += zoomStep;
+            // Ensure camera doesn't get too far (using the same limit as the scroll wheel)
+            cameraDistance = Math.min(500, cameraDistance);
+            });
+            $('#rotate-left').on('click', function() {
+                targetX -= 0.1;  // Rotate left
+            });
+
+            $('#rotate-right').on('click', function() {
+                targetX += 0.1;  // Rotate right
+            });
+
+            $('#rotate-up').on('click', function() {
+                targetY += 0.1;  // Rotate up
+                targetY = Math.min(1.0, targetY); 
+            });
+
+            $('#rotate-down').on('click', function() {
+                targetY -= 0.1;  // Rotate down
+                targetY = Math.max(-1.0, targetY); 
+            });
+
+            // Clear any previous error messages
+            function clearErrors() {
+                $('.error-message').hide().text('');
+                $('.form-control').removeClass('is-invalid');
+            }
+            
+            // Show error message for a specific field
+            function showError(fieldId, message) {;
+                $('#' + fieldId + '_error').text(message).show();
+            }
+            
+            // Validate measurements
+            function validateMeasurements() {
+                clearErrors();
+                let isValid = true;
+                
+                const headCirc = parseFloat($('#head_circ').val());
+                const tragus = parseFloat($('#tragus_tragus').val());
+                const nasion = parseFloat($('#nasion_inion').val());
+                
+                if (!headCirc || headCirc <= 0) {
+                    showError('head_circ', 'Please enter a valid head circumference');
+                    isValid = false;
+                }
+                
+                if (!tragus || tragus <= 0) {
+                    showError('tragus_tragus', 'Please enter a valid tragus-tragus distance');
+                    isValid = false;
+                }
+                
+                if (!nasion || nasion <= 0) {
+                    showError('nasion_inion', 'Please enter a valid nasion-inion distance');
+                    isValid = false;
+                }
+                
+                // Basic sanity checks
+                if (headCirc && (headCirc < 40 || headCirc > 70)) {
+                    showError('head_circ', 'Head circumference seems unusual (typical range: 40-70 cm)');
+                    isValid = false;
+                }
+                
+                if (tragus && (tragus < 25 || tragus > 45)) {
+                    showError('tragus_tragus', 'Tragus-tragus distance seems unusual (typical range: 25-45 cm)');
+                    isValid = false;
+                }
+                
+                if (nasion && (nasion < 25 || nasion > 45)) {
+                    showError('nasion_inion', 'Nasion-inion distance seems unusual (typical range: 25-45 cm)');
+                    isValid = false;
+                }
+                
+                return isValid;
+            }
+
+            // Show/hide target coordinates based on result type
+            $('input[name="result_type"]').change(function() {
+                if ($('#valter').is(':checked')) {
+                    $('#target-coordinates').show();
+                } else {
+                    $('#target-coordinates').hide();
+                    $('#custom-coordinates').hide();
+                    $('#point_x, #point_y, #point_z').prop('required', false);
+                }
+                // Reset the result cells to dashes
+                $('#circumferential-result').text('--- cm');
+                $('#vertex-result').text('--- cm');
+                
+                // Ensure the image is visible and the 3D viewer is hidden
+                $('#image-placeholder').show();
+                $('#viewer-container').hide();
+                $('#viewer-container').hide();
+                $('#step3-placeholder').show();
+                $('#progress-container').hide();
+            });
+
+            // Show/hide custom coordinate inputs when "Other" is selected
+            $('input[name="target_choice"]').change(function() {
+                if ($('#custom').is(':checked')) {
+                    $('#custom-coordinates').show();
+                    $('#point_x, #point_y, #point_z').prop('required', true);
+                } else {
+                    $('#custom-coordinates').hide();
+                    $('#point_x, #point_y, #point_z').prop('required', false);
+                }
+            });
+
+            // Handle form submission
+            $('#tms-form').submit(function(event) {
+                event.preventDefault();
+                
+                // Validate measurements first
+                if (!validateMeasurements()) {
+                    return false;
+                }
+                
+                $('#step3-placeholder').hide();
+                $('#loading').show();
+                var resultType = $('input[name="result_type"]:checked').val();
+
+                if (resultType === 'valter') {
+                    $('#progress-container').show(); // Only show progress bar for Valter method
+                    $('#viewer-container').hide();
+                    // Update loading text at different intervals
+                    $('#loading-text').text('Computing head dimensions...');
+                    
+                    setTimeout(function() {
+                        $('#loading-text').text("Loading head model template");
+                    }, 3000);
+
+                    setTimeout(function() {
+                        $('#loading-text').text("Generating patient-specific scalp and brain models");
+                    }, 10000);
+                    
+                    setTimeout(function() {
+                    $('#loading-text').text("Calculating path length to target");
+                    }, 23000);
+                    setTimeout(function() {
+                        $('#loading-text').text("Rendering patient's 3D head model...");
+                    }, 26000);
+                } else {
+                    $('#progress-container').hide(); // Ensure it's hidden for f3 (if it was somehow shown)
+                    $('#viewer-container').hide();
+                }
+                clearErrors();
+                $('.step3-container').get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                var formData = $(this).serialize();
+                var resultType = $('input[name="result_type"]:checked').val();
+                
+                console.log('Submitting form data:', formData);
+                console.log('Result type:', resultType);
+
+                // Both methods now use AJAX
+                $.ajax({
+                    url: '/scale',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        $('#loading').hide();
+                        $('.step3-container').get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        if (response.error) {
+                            alert('Error: ' + response.error);
+                            $('#step3-placeholder').show();
+                            return;
+                        }
+                        
+                        if (response.success) {
+                            // 1. Always update the numerical results
+                            $('#circumferential-result').text(parseFloat(response.circumferential_dist).toFixed(1) + ' cm');
+                            $('#vertex-result').text(parseFloat(response.vertex_dist_adjusted).toFixed(1) + ' cm');
+
+                            if (response.result_type === 'f3') {
+                                // Beam-F3 results: Ensure image is visible and viewer is hidden
+                                $('#image-placeholder').show();
+                                $('#viewer-container').hide();
+                                // Note: The image source is already set in the HTML and doesn't need to be changed.
+
+                            } else if (response.result_type === 'valter') {
+                                // Valter results: Hide image and show 3D viewer
+                                $('#image-placeholder').hide();
+                                $('#viewer-container').show();
+                                
+                                // Initialize and load 3D model
+                                setTimeout(() => {
+                                    load3DModel(response.DLPFC_snapped, response.scaled_point, response.stl_timestamp, response.vertical_path, response.horizontal_path);
+                                }, 100);
+                            }
+
+                            // Hide the loading/placeholder elements
+                            $('#loading').hide();
+                            $('#step3-placeholder').hide();
+
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loading').hide();
+                        $('#step3-placeholder').show();
+                        console.error('AJAX error:', error);
+                        console.error('Response:', xhr.responseText);
+                        let errorMessage = 'Unknown error occurred';
+                        try {
+                            const errorData = JSON.parse(xhr.responseText);
+                            errorMessage = errorData.error || errorMessage;
+                        } catch (e) {
+                            errorMessage = xhr.responseText || errorMessage;
+                        }
+                        alert('Error: ' + errorMessage);
+                    }
+                });
+            });
+
+            // Handle window resize for 3D viewer
+            $(window).resize(function() {
+                if (renderer && camera) {
+                    const viewerElement = document.getElementById('viewer-3d');
+                    if (viewerElement) {
+                        camera.aspect = viewerElement.clientWidth / viewerElement.clientHeight;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize(viewerElement.clientWidth, viewerElement.clientHeight);
+                    }
+                }
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

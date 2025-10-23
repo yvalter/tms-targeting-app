@@ -1,0 +1,2 @@
+Version: 1.11.1
+Arguments: ['C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-7etbrh8o\\cp312-win_amd64\\build\\venv\\Scripts\\delvewheel', 'repair', '-w', 'C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-7etbrh8o\\cp312-win_amd64\\repaired_wheel', 'C:\\Users\\runneradmin\\AppData\\Local\\Temp\\cibw-run-7etbrh8o\\cp312-win_amd64\\built_wheel\\manifold3d-3.2.1-cp312-cp312-win_amd64.whl']

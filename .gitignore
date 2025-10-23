@@ -1,0 +1,13 @@
+# Virtual environments
+test-env/
+test-env2/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Generated STL files
+static/scaled_*.stl
+
+# Other temporary files
+*.log
