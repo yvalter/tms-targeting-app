@@ -9,6 +9,7 @@ import logging
 import subprocess
 import tempfile
 import os
+from whitenoise import WhiteNoise
 from pathlib import Path
 from tqdm import tqdm
 import uuid
