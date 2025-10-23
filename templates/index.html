@@ -1263,8 +1263,9 @@
                         $('#loading-text').text("Rendering patient's 3D head model...");
                     }, 26000);
                 } else {
-                    $('#progress-container').hide(); // Ensure it's hidden for f3 (if it was somehow shown)
+                    $('#progress-container').hide();
                     $('#viewer-container').hide();
+                    $('#loading').hide();
                 }
                 clearErrors();
                 $('.step3-container').get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
