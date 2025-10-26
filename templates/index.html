@@ -140,11 +140,11 @@
             width: 0;
             height: 20px;
             background-color: #4caf50;
-            animation: progress 30s linear forwards;
+            animation: progress 5s linear forwards;
         }
         @keyframes progress {
             from { width: 0; }
-            to { width: 90%; }
+            to { width: 95%; }
         }
         .hidden {
             display: none;
@@ -1249,19 +1249,24 @@
                     $('#loading-text').text('Computing head dimensions...');
                     
                     setTimeout(function() {
-                        $('#loading-text').text("Loading head model template");
+                        $('#loading-text').text("Loading MNI template");
+                    }, 500);
+
+                    setTimeout(function() {
+                        $('#loading-text').text("Building patient-specific sclap and brain models");
+                    }, 1000);
+                    
+                    setTimeout(function() {
+                        $('#loading-text').text("Locating target");
                     }, 3000);
 
                     setTimeout(function() {
-                        $('#loading-text').text("Generating patient-specific scalp and brain models");
-                    }, 10000);
+                        $('#loading-text').text("Calculating path lengths");
+                    }, 3200);
                     
                     setTimeout(function() {
-                    $('#loading-text').text("Calculating path length to target");
-                    }, 23000);
-                    setTimeout(function() {
-                        $('#loading-text').text("Rendering patient's 3D head model...");
-                    }, 26000);
+                        $('#loading-text').text("Rendering model");
+                    }, 4000);
                 } else {
                     $('#progress-container').hide();
                     $('#viewer-container').hide();
