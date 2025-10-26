@@ -140,7 +140,7 @@
             width: 0;
             height: 20px;
             background-color: #4caf50;
-            animation: progress 5s linear forwards;
+            animation: progress 4s linear forwards;
         }
         @keyframes progress {
             from { width: 0; }
@@ -1246,27 +1246,27 @@
                     $('#progress-container').show(); // Only show progress bar for Valter method
                     $('#viewer-container').hide();
                     // Update loading text at different intervals
-                    $('#loading-text').text('Computing head dimensions...');
+                    $('#loading-text').text("Computing scalp dimensions");
                     
                     setTimeout(function() {
                         $('#loading-text').text("Loading MNI template");
-                    }, 500);
+                    }, 300);
 
                     setTimeout(function() {
-                        $('#loading-text').text("Building patient-specific sclap and brain models");
-                    }, 1000);
+                        $('#loading-text').text("Building patient-specific scalp and brain models");
+                    }, 700);
                     
                     setTimeout(function() {
                         $('#loading-text').text("Locating target");
-                    }, 3000);
+                    }, 2000);
 
                     setTimeout(function() {
                         $('#loading-text').text("Calculating path lengths");
-                    }, 3200);
+                    }, 2200);
                     
                     setTimeout(function() {
                         $('#loading-text').text("Rendering model");
-                    }, 4000);
+                    }, 2400);
                 } else {
                     $('#progress-container').hide();
                     $('#viewer-container').hide();
