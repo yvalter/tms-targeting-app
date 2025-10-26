@@ -65,7 +65,7 @@
         .form-label {
             font-weight: 400;
             color: #495057;
-            margin-top: 5px;
+            margin-top: none;
             margin-bottom: 10px;
             font-size: 1.2rem; 
         }
@@ -1257,12 +1257,16 @@
                     }, 700);
                     
                     setTimeout(function() {
-                        $('#loading-text').text("Locating target");
+                        $('#loading-text').text("Locating brain and scalp targets");
                     }, 2000);
 
                     setTimeout(function() {
-                        $('#loading-text').text("Calculating path lengths");
+                        $('#loading-text').text("Calculating circumferential path length");
                     }, 2200);
+
+                    setTimeout(function() {
+                        $('#loading-text').text("Calculating vertex-target path length");
+                    }, 2300);
                     
                     setTimeout(function() {
                         $('#loading-text').text("Rendering model");
