@@ -813,6 +813,7 @@
                 mesh.scale.set(scale, scale, scale);
                 mesh.rotation.x = -Math.PI / 2;
                 document.getElementById('progress-container').style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
 
 
             // Load brain STL
@@ -1291,7 +1292,6 @@
                     type: 'POST',
                     data: formData,
                     success: function(response) {
-                        $('#loading').hide();
                         $('.step3-container').get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
                         if (response.error) {
                             alert('Error: ' + response.error);
