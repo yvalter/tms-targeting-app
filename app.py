@@ -1,5 +1,6 @@
 from sympy import symbols, Eq, nsolve, sqrt, pi
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, send_file, g
+import nibabel as nib
 import numpy as np
 import sys
 import trimesh
@@ -184,7 +185,46 @@ def scale_brain_stl(input_path, output_path, scale_matrix, session_id=None):
     except Exception as e:
         logger.error(f"Brain STL scaling error: {str(e)}")
         return jsonify({'error': f"Brain STL scaling failed: {str(e)}"}), 500
+    
+def scale_nifti(input_path, output_path, scale_matrix):
+    """Scale NIfTI file and save to output path."""
+    try:
+        logger.info(f"Attempting to scale NIfTI from {input_path} to {output_path}")
+        if not Path(input_path).exists():
+            logger.error(f"Input NIfTI not found: {input_path}")
+            raise FileNotFoundError(f"Input NIfTI not found: {input_path}")
+        
+        logger.info("Loading NIfTI file...")
+        # Load the NIfTI file
+        nifti_img = nib.load(input_path)
+        data = nifti_img.get_fdata()
+        affine = nifti_img.affine.copy()
+        
+        logger.info(f"Original affine matrix:\n{affine}")
+        
+        # Apply scaling to the affine matrix
+        affine[:3, :3] = np.dot(affine[:3, :3], scale_matrix)
+        
+        logger.info(f"Scaled affine matrix:\n{affine}")
+        
+        # Create new NIfTI image with scaled affine
+        scaled_img = nib.Nifti1Image(data, affine, nifti_img.header)
+        
+        # Save the scaled NIfTI
+        nib.save(scaled_img, output_path)
+        logger.info(f"Scaled NIfTI saved to {output_path}")
 
+        if Path(output_path).exists():
+            logger.info(f"Verified: NIfTI file exists at {output_path}")
+        else:
+            logger.error(f"ERROR: NIfTI file was NOT created at {output_path}")
+        
+        return None
+    except Exception as e:
+        logger.error(f"NIfTI scaling error: {str(e)}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return jsonify({'error': f"NIfTI scaling failed: {str(e)}"}), 500
+    
 def call_meshtomeasure(fpz, oz, dlpfc, scaled_stl_path, session_id=None):
     """
     Call the meshtomeasure_YK_v0.py script to calculate path lengths.
@@ -411,10 +451,9 @@ def scale_route():
         output_stl = 'static/scaled_head.stl'
         input_brain_stl = 'static/mni_brain.stl'
         output_brain_stl = 'static/scaled_brain.stl'
-        brain_scale_result = scale_brain_stl(input_brain_stl, output_brain_stl, scale_matrix)
+        brain_scale_result = scale_brain_stl(input_brain_stl, output_brain_stl, scale_matrix)       
         if brain_scale_result:
             return brain_scale_result
-        
         if not Path(input_stl).exists():
             logger.error(f"Input STL file not found: {input_stl}")
             return jsonify({'error': f"Input STL file not found: {input_stl}"}), 404
@@ -482,7 +521,8 @@ def scale_route():
             'vertical_path': vertical_path,
             'horizontal_path': horizontal_path,
             'stl_timestamp': str(int(Path(output_stl).stat().st_mtime)),
-            'brain_stl_timestamp': str(int(Path(output_brain_stl).stat().st_mtime))
+            'brain_stl_timestamp': str(int(Path(output_brain_stl).stat().st_mtime)),
+            'scale_matrix': scale_matrix.tolist()
         })
 
     except ValueError as ve:
@@ -503,7 +543,78 @@ def internal_error(error):
     logger.error(f"Internal server error: {error}")
     return jsonify({'error': 'Internal server error'}), 500
 
+@app.route('/download_nifti/<session_id>')
+def download_nifti(session_id):
+    """Generate, download, and clean up the scaled NIfTI file for a given session."""
+    nifti_path = None
+    try:
+        # Get scale_matrix from request args (passed from frontend)
+        scale_matrix_str = request.args.get('scale_matrix')
+        if not scale_matrix_str:
+            return jsonify({'error': 'Scale matrix not provided'}), 400
+        
+        # Parse the scale matrix
+        import json
+        scale_matrix = np.array(json.loads(scale_matrix_str), dtype=float)
+        
+        # Generate the NIfTI file on-demand
+        input_nifti = 'static/mni_unscaled.nii'
+        temp_dir = tempfile.gettempdir()
+        nifti_path = os.path.join(temp_dir, f'scaled_mni_{session_id}.nii')
+        
+        logger.info(f"Generating NIfTI file on demand for session {session_id}")
+        nifti_scale_result = scale_nifti(input_nifti, nifti_path, scale_matrix)
+        
+        if nifti_scale_result:
+            return nifti_scale_result
+        
+        if not Path(nifti_path).exists():
+            return jsonify({'error': 'NIfTI file generation failed'}), 500
+        
+        # Send the file
+        response = send_file(
+            nifti_path,
+            as_attachment=True,
+            download_name='synthetic_mri.nii',
+            mimetype='application/octet-stream'
+        )
+        
+        def delete_file():
+            try:
+                if Path(nifti_path).exists():
+                    os.unlink(nifti_path)
+                    logger.info(f"Cleaned up NIfTI file: {nifti_path}")
+            except Exception as e:
+                logger.error(f"Error cleaning up NIfTI file: {e}")
+
+        # Use Flask's after_request to ensure cleanup
+        from flask import g
+        if not hasattr(g, 'cleanup_files'):
+            g.cleanup_files = []
+        g.cleanup_files.append(delete_file)
+
+        return response
+    
+    except Exception as e:
+        logger.error(f"Error downloading NIfTI: {e}")
+        # Cleanup on error
+        try:
+            if nifti_path and Path(nifti_path).exists():
+                os.unlink(nifti_path)
+        except:
+            pass
+        return jsonify({'error': str(e)}), 500
+
+@app.teardown_request
+def cleanup_files(exception=None):
+    if hasattr(g, 'cleanup_files'):
+        for cleanup_func in g.cleanup_files:
+            try:
+                cleanup_func()
+            except Exception as e:
+                logger.error(f"Error in cleanup: {e}")
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port) # Removed debug=True
+    app.run(host='0.0.0.0', port=port)

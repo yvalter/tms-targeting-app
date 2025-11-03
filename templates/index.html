@@ -238,7 +238,7 @@
             }
         }
         .references { 
-            margin-top: 20px;
+            margin-top: 5px;
             background: transparent;
             padding: 10px;
             border-radius: 10px;
@@ -399,7 +399,7 @@
 </head>
 <body>
     <div class="container main-container">
-        <h1>TMS Targets</h1>        
+        <h1>TMS Targets-testing version</h1>        
         <form id="tms-form">
             <div class="measurement-section">
             <h4 class="section-title">Step 1: Enter anatomical measurements</h4>
@@ -574,6 +574,11 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="download-nifti-container" style="display: none; margin-top: 5px; margin-bottom: none; text-align: right;">
+            <button type="button" id="download-nifti-btn" class="btn btn-primary" style="font-size: 1rem; padding: 10px 20px;">
+                Download patient's synthetic MRI (.nii)
+            </button>
         </div>
         <div class="modal fade" id="headCircModal" tabindex="-1" aria-labelledby="headCircModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -1206,6 +1211,7 @@
                     $('#target-coordinates').hide();
                     $('#custom-coordinates').hide();
                     $('#point_x, #point_y, #point_z').prop('required', false);
+                    $('#download-nifti-container').hide();
                 }
                 // Reset the result cells to dashes
                 $('#circumferential-result').text('--- cm');
@@ -1314,11 +1320,17 @@
                                 // Valter results: Hide image and show 3D viewer
                                 $('#image-placeholder').hide();
                                 $('#viewer-container').show();
-                                
+
                                 // Initialize and load 3D model
                                 setTimeout(() => {
                                     load3DModel(response.DLPFC_snapped, response.scaled_point, response.stl_timestamp, response.vertical_path, response.horizontal_path);
                                 }, 100);
+
+                                $('#download-nifti-container').show();
+                                $('#download-nifti-btn').off('click').on('click', function() {
+                                    const scaleMatrixParam = encodeURIComponent(JSON.stringify(response.scale_matrix));
+                                    window.location.href = '/download_nifti/' + response.session_id + '?scale_matrix=' + scaleMatrixParam;
+                                });
                             }
 
                             // Hide the loading/placeholder elements
