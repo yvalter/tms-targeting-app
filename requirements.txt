@@ -44,3 +44,4 @@ vhacdx==0.0.8.post2  # Latest version available
 Werkzeug==3.0.6
 whitenoise==6.7.0
 xxhash==3.6.0
+antspyx==0.5.4
