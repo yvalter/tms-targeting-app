@@ -1,0 +1,6 @@
+#!/Users/Soterixmedical/tms-targeting-app/.venv_fix/bin/python3.12
+import sys
+from stl.main import main
+if __name__ == '__main__':
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
+    sys.exit(main())

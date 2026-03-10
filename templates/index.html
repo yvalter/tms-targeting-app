@@ -9,33 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
     <style>
         body {
-            font-family: 'Lato', 'Segoe UI', sans-serif;
-        }
-
-        h1, h2, h3, h4 {
-            font-family: 'Raleway', 'Segoe UI', sans-serif;
-            font-weight: 600;
-        }
-
-        .form-label, .form-check-label {
-            font-family: 'Lato', 'Segoe UI', sans-serif;
-            font-weight: 500;
-        }
-
-        .references, .modal-body {
             font-family: 'Libre Baskerville', serif;
-            font-size: 0.9rem;
-            line-height: 1.5;
         }
-        body { 
-            padding: 15px; 
-            background-color: #1e6091;
-        }
-        .main-container {
-            max-width: 700px;
-            margin: 0 auto;
+
+        h1, h2, h3 {
+            font-family: 'Libre Baskerville', serif;
+            font-weight: 600;
         }
         h1 {
             font-size: 2rem;
@@ -54,12 +37,36 @@
             font-size: 0.8rem;
             padding-bottom: 5px;
         }
-
-        h4 { 
+        h4 {
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-weight: 600;
             color: #495057;
-            font-weight: 400;
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             padding-bottom: 5px;
+        }
+        h5 {
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-weight: 400;
+            color: #495057;
+            font-size: 1.3rem;
+        }
+        .form-label, .form-check-label {
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-weight: 500;
+        }
+
+        .references, .modal-body {
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        body { 
+            padding: 15px; 
+            background-color: #1e6091;
+        }
+        .main-container {
+            max-width: 750px;
+            margin: 0 auto;
         }
 
         .form-label {
@@ -71,16 +78,21 @@
         }
         
         .form-check-label {
+            font-family: 'Open Sans', Arial, sans-serif;
             font-weight: 400;
             color: #495057;
             font-size: 1.2rem;
         }
 
         .btn-primary {
+            font-family: 'Open Sans', Arial, sans-serif;
             background-color: #1e6091;
             border-color: #0069a3;
             padding: 10px 20px;
             font-weight: 500;
+        }
+        .btn {
+            font-family: 'Open Sans', Arial, sans-serif;
         }
         .btn-primary:hover {
             background-color: #64B5F6;
@@ -90,6 +102,25 @@
             color: #dc3545;
             margin-top: 5px;
             font-size: 0.875em;
+        }
+        .mri-method:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .mri-method-label {
+            color: #6c757d;
+            opacity: 0.6;
+        }
+
+        .mri-method:not(:disabled) ~ .mri-method-label {
+            color: #495057;
+            opacity: 1;
+        }
+        #loading-text {
+            font-family: 'Open Sans', Arial, sans-serif;
+            font-weight: 500;
+            letter-spacing: 0.1px;
         }
         .measurement-input {
             width: 90px;
@@ -102,6 +133,14 @@
             background-color: #ffffff !important;
             border: none !important;
             background-image: none !important;
+            width: 12px;
+            padding: 0 6px !important;
+        }
+        #results-box .table th.spacer {
+            background-color: #ffffff !important;
+            border: none !important;
+            width: 12px;
+            padding: 0 6px !important;
         }
 
         .step3-placeholder {
@@ -111,6 +150,13 @@
         padding: 5px;
         background-color: #f8f9fa;
         border-radius: 8px;
+        }
+        .text-muted {
+            color: #6c757d !important;
+            opacity: 0.6;
+        }
+        .form-check-input:disabled + .form-check-label {
+            cursor: not-allowed;
         }
         .measurement-container {
             position: relative;
@@ -186,7 +232,10 @@
         align-items: center;
         margin-bottom: 10px;
         }
-
+        .coordinate-input {
+            width: 90px;
+            display: inline-block;
+        }
         .measurement-input-section {
         flex: 1;
         text-align: center;
@@ -207,12 +256,40 @@
             height: 18px;
             line-height: 18px;
         }
+        .text-like-btn {
+            
+            font-family: 'Open Sans', Arial, sans-serif !important;
+            font-size: 1.4rem !important;
+            font-weight: 400 !important;
+            color: #1e6091 !important; /* Use primary color to show it's clickable */
+            background-color: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            text-decoration: underline; /* Standard link visual cue */
+            vertical-align: baseline; /* Ensures perfect alignment with the h4 text */
+        }
+
+        .text-like-btn:hover {
+            color: #64B5F6 !important; /* Hover effect to match existing color scheme */
+            background-color: transparent !important;
+        }
 
         .measurement-figure {
         max-width: 100%;
         height: auto;
         max-height: 150px;
         border-radius: 2px;
+        }
+        .mri-upload-section {
+            border: none;
+            padding: 4px 0 0;
+            background-color: #ffffff;
+            margin-bottom: 5px;
+            border-radius: 0;
+            box-shadow: none;
+        }
+        .mri-upload-section .mb-3 {
+            margin-bottom: 1.0rem !important;
         }
 
         /* Mobile responsiveness */
@@ -245,6 +322,13 @@
             box-shadow: none;
             font-size: 0.8rem;
             color: white;
+        }
+        .references a {
+            color: #cfe6ff;
+            font-size: inherit;
+        }
+        .references a:hover {
+            color: #e2f0ff;
         }
         #target-coordinates { 
             display: none; 
@@ -331,7 +415,6 @@
             font-size: 1.1rem;
             padding: 10px;
         }
-
         .info-icon {
             background-color: #d0d1d1;
             color: white;
@@ -353,6 +436,7 @@
         }
 
         .unit-label {
+        font-family: 'Open Sans', Arial, sans-serif;
         font-size: 1.2rem;
         color: #495057;
         font-weight: 500;
@@ -363,6 +447,18 @@
             border: 2px solid #495057;
             width: 1.2em; 
             height: 1.2em;
+        }
+        .form-control,
+        input,
+        select,
+        textarea {
+            font-family: 'Open Sans', Arial, sans-serif;
+        }
+        input[type="file"]::file-selector-button {
+            font-family: 'Open Sans', Arial, sans-serif;
+        }
+        input[type="file"]::-webkit-file-upload-button {
+            font-family: 'Open Sans', Arial, sans-serif;
         }
 
         .form-check-input:checked {
@@ -399,12 +495,64 @@
 </head>
 <body>
     <div class="container main-container">
-        <h1>TMS-Targets<sup style="font-size: 0.4em; position: relative; top: -0.9em;">TM</sup></h1>        
+        <h1>TMS-Targets<sup style="font-size: 0.2em; opacity: 0.65; position: relative; top: -3em;">TM</sup></h1>        
         <form id="tms-form">
             <div class="measurement-section">
-            <h4 class="section-title">Step 1: Enter anatomical measurements</h4>
-            <div class="measurement-row">
+                <h4 class="section-title">Step 1: Choose target</h4>
+                <div class="mb-3">
+                    <div class="form-check" id="f3-wrapper" title="Available for left DLPFC only">
+                        <input class="form-check-input" type="radio" name="result_type" id="f3" value="f3" checked>
+                        <label class="form-check-label" for="f3">Beam-F3<sup style="font-size: 0.5em; opacity: 0.8; vertical-align: super; position: relative; top: -0.22em;">1</sup></label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="result_type" id="valter" value="valter">
+                        <label class="form-check-label" for="valter">Valter head model<sup style="font-size: 0.5em; opacity: 0.8; vertical-align: super; position: relative; top: -0.22em;">2</sup></label>
+                    </div>
 
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="result_type" id="mri-id" value="mri-value">
+                        <label class="form-check-label mb-0" for="mri-id">MRI head model<sup style="font-size: 0.5em; opacity: 0.8; vertical-align: super; position: relative; top: -0.22em;">3</sup></label>
+                    </div>
+                </div>
+
+                <div id="target-coordinates" class="mb-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="target_choice" id="default" value="default" checked>
+                        <label class="form-check-label" for="default">Left DLPFC<sup style="font-size: 0.5em; opacity: 0.8; vertical-align: super; position: relative; top: -0.22em;">4</sup></label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="target_choice" id="custom" value="custom">
+                        <label class="form-check-label" for="custom">Custom MNI brain coordinates</label>
+                    </div>
+                    <div id="custom-coordinates" style="display: none; margin-top: 10px;">
+                        <div class="d-flex align-items-center">
+                            <label for="point_x" class="form-label mb-0 me-2">X:</label>
+                            <input type="number" step="0.1" class="form-control coordinate-input" id="point_x" name="point_x">
+                            
+                            <label for="point_y" class="form-label mb-0 ms-3 me-2">Y:</label>
+                            <input type="number" step="0.1" class="form-control coordinate-input" id="point_y" name="point_y">
+                            
+                            <label for="point_z" class="form-label mb-0 ms-3 me-2">Z:</label>
+                            <input type="number" step="0.1" class="form-control coordinate-input" id="point_z" name="point_z">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-container">
+                <h4 class="section-title" id="step2-title">Step 2: Enter anatomical measurements</h4>
+                <!-- MRI Upload Section -->
+                <div class="mri-upload-section" id="mri-upload-section" style="display: none;">
+                    <div class="mb-3">
+                        <label for="mri_file" class="form-label">Select NIfTI file (.nii or .nii.gz)</label>
+                        <input type="file" class="form-control" id="mri_file" name="mri_file" accept=".nii,.nii.gz,.gz,application/gzip,application/x-gzip">
+                        <div class="error-message" id="mri_file_error" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Measurement Row -->
+                <div class="measurement-row" id="measurement-row">
                 <!-- Nasion-Inion -->
                 <div class="measurement-container">
                 <div class="measurement-input-section">
@@ -465,50 +613,7 @@
                 </div>
                 </div>
 
-            </div>
-            </div>
-
-
-            <div class="form-container">
-                <div class="mb-3">
-                    <h4 class="section-title">Step 2: Choose targeting method</h4>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="result_type" id="f3" value="f3" checked>
-                        <label class="form-check-label" for="f3">Beam-F3*</label>
-                    </div>
-                    
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="result_type" id="valter" value="valter">
-                        <label class="form-check-label" for="valter">Valter-MNI** (left DLPFC or custom target)</label>
-                    </div>
                 </div>
-                
-                <div id="target-coordinates" class="mb-3">
-                    <label class="form-label">TMS Target</label>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="target_choice" id="default" value="default" checked>
-                        <label class="form-check-label" for="default">Default left DLPFC***</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="target_choice" id="custom" value="custom">
-                        <label class="form-check-label" for="custom">Other (enter brain MNI coordinates)</label>
-                    </div>
-                    <div id="custom-coordinates" style="display: none;">
-                        <div class="mb-3">
-                            <label for="point_x" class="form-label">X Coordinate:</label>
-                            <input type="number" step="0.1" class="form-control" id="point_x" name="point_x">
-                        </div>
-                        <div class="mb-3">
-                            <label for="point_y" class="form-label">Y Coordinate:</label>
-                            <input type="number" step="0.1" class="form-control" id="point_y" name="point_y">
-                        </div>
-                        <div class="mb-3">
-                            <label for="point_z" class="form-label">Z Coordinate:</label>
-                            <input type="number" step="0.1" class="form-control" id="point_z" name="point_z">
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
@@ -603,28 +708,57 @@
             </div>
         </div>
         <div class="references">         
-            <p>References and Notes</p>
-            <p>*Implements the web-version of Beam-F3<sup>1</sup> including the adjustment of Mir-Moghtadaei et al.<sup>2</sup> Code was obtained directly from the developers of the web Beam-F3 program.</p>
-            <p>**Implements MRI-free head modeling approach of Valter et al.<sup>3</sup></p>
-            <p> ***MNI brain coordinates [-38, 44, 26] based on Fox et al.<sup>4</sup><p>    
-            <p>1. Beam W, Borckardt JJ, Reeves ST, George MS. An efficient and accurate new method for locating the F3 position for prefrontal TMS applications. Brain Stimul. 2009 Jan;2(1):50-4. doi: 10.1016/j.brs.2008.09.006.</p>
-            <p>2. Mir-Moghtadaei A, Caballero R, Fried P, Fox MD, Lee K, Giacobbe P, Daskalakis ZJ, Blumberger DM, Downar J. Concordance Between BeamF3 and MRI-neuronavigated Target Sites for Repetitive Transcranial Magnetic Stimulation of the Left Dorsolateral Prefrontal Cortex. Brain Stimul. 2015 Sep-Oct;8(5):965-73. doi: 10.1016/j.brs.2015.05.008.</p>
-            <p>3. Valter, Y., Truong, D. Q., Kawasumi, Y., Bikson, M., & Datta, A. (2025). TMS targeting using MRI-free head modeling. Transcranial Magnetic Stimulation, 5100188.</p>
-            <p>4. Fox, M. D., Buckner, R. L., White, M. P., Greicius, M. D., & Pascual-Leone, A. (2012). Efficacy of transcranial magnetic stimulation targets for depression is related to intrinsic functional connectivity with the subgenual cingulate. Biological Psychiatry, 72(7), 595â€“603. https://doi.org/10.1016/j.biopsych.2012.04.028</p>
+            <p><sup>1</sup> Implements the web-version of Beam-F3 (<a href="https://pubmed.ncbi.nlm.nih.gov/20539835/" target="_blank" rel="noopener noreferrer">Beam et al., 2009</a>) including the adjustment of <a href="https://pubmed.ncbi.nlm.nih.gov/26115776/" target="_blank" rel="noopener noreferrer">Mir-Moghtadaei et al. (2015)</a>. Code was obtained directly from the developers of the web Beam-F3 program.</p>
+            <p><sup>2</sup> Implements the MRI-free head modeling approach of <a href="https://www.tmsjournal.org/article/S3050-5291(25)00104-7/fulltext" target="_blank" rel="noopener noreferrer">Valter et al. (2025)</a></p>
+            <p><sup>3</sup> For speed and computational efficiency, the MNI152 head is fit to the uploaded MRI using an affine transform (ANT.py), instead of performing MRI segmentation and smoothing. Therefore, the displayed model and measurements are approximations.</p>
+            <p><sup>4</sup> MNI brain coordinates [-38, 44, 26] based on <a href="https://pubmed.ncbi.nlm.nih.gov/22658708/" target="_blank" rel="noopener noreferrer">Fox et al. (2012)</a></p>    
             <p>Developed by Yushi Kawasumi & Yishai Valter with research support from the NIMH and Soterix Medical<p>
-            <p>Disclaimer: Information provided by this website is not medical advice.<p>
+            <p>Disclaimer: Information provided by this website is not medical advice. MRI processing is performed in the cloud, and the uploaded MRI is immediately discarded after processing. No identifiable patient information is saved. By using this website, you confirm that you have the legal right and authorization to upload the patient's scan.</p>
         </div>
     </div>
 
     <script>
         // Global variables for 3D viewer
-        let scene, camera, renderer, mesh, brainMesh, targetMarker, rawTargetMarker, vertexMarker;
+        let scene, camera, renderer, mesh, brainMesh, targetMarker, vertexMarker;
+        let rawTargetMarker = null;
+        let vertexXMarker = null;
+        let targetCone = null;
+        let dlpfcSphere = null;
+        let midlineIndicator = null;
         let pathLines = [];
         let arrowCones = [];
         let isMouseDown = false;
         let mouseX = 0, mouseY = 0;
         let targetX = 0, targetY = 0;
         let cameraDistance = 150;
+        let loadingDotsInterval = null;
+        let loadingDotsBaseText = '';
+
+        function stopLoadingDots(finalText = null) {
+            if (loadingDotsInterval) {
+                clearInterval(loadingDotsInterval);
+                loadingDotsInterval = null;
+            }
+            loadingDotsBaseText = '';
+            if (finalText !== null) {
+                $('#loading-text').text(finalText);
+            }
+        }
+
+        function startLoadingDots(baseText) {
+            const normalizedBase = (baseText || 'Processing').trim();
+            if (loadingDotsInterval && loadingDotsBaseText === normalizedBase) {
+                return;
+            }
+            stopLoadingDots();
+            loadingDotsBaseText = normalizedBase;
+            let dotCount = 0;
+            $('#loading-text').text(normalizedBase);
+            loadingDotsInterval = setInterval(function() {
+                dotCount = (dotCount + 1) % 4; // "", ".", "..", "..."
+                $('#loading-text').text(normalizedBase + '.'.repeat(dotCount));
+            }, 450);
+        }
 
         function init3DViewer() {
             const viewerElement = document.getElementById('viewer-3d');
@@ -636,7 +770,12 @@
             camera = new THREE.PerspectiveCamera(60, viewerElement.clientWidth / viewerElement.clientHeight, 0.1, 1000);
             
             renderer = new THREE.WebGLRenderer({ antialias: true });
+            // Use device pixel ratio for crisp rendering on HiDPI screens
+            renderer.setPixelRatio(window.devicePixelRatio || 1);
             renderer.setSize(viewerElement.clientWidth, viewerElement.clientHeight);
+            // Ensure canvas scales responsively inside the container
+            renderer.domElement.style.width = '100%';
+            renderer.domElement.style.height = '100%';
             viewerElement.appendChild(renderer.domElement);
 
             const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
@@ -648,7 +787,41 @@
             setupMouseControls(viewerElement);
             animate();
         }
-        
+        function createXMarker(position, normal, color, size = 4) {
+            const group = new THREE.Group();
+
+            // Material for tubes
+            const material = new THREE.MeshBasicMaterial({ color: color });
+
+            // First diagonal tube
+            const path1 = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-size, -size, 0),
+                new THREE.Vector3(size, size, 0)
+            ]);
+            const tubeGeometry1 = new THREE.TubeGeometry(path1, 1, 0.5, 8, false);
+            const tube1 = new THREE.Mesh(tubeGeometry1, material);
+            group.add(tube1);
+
+            // Second diagonal tube
+            const path2 = new THREE.CatmullRomCurve3([
+                new THREE.Vector3(-size, size, 0),
+                new THREE.Vector3(size, -size, 0)
+            ]);
+            const tubeGeometry2 = new THREE.TubeGeometry(path2, 1, 0.5, 8, false);
+            const tube2 = new THREE.Mesh(tubeGeometry2, material);
+            group.add(tube2);
+
+            // Position the X marker
+            group.position.copy(position);
+
+            // Align X with surface normal (so it lies flat on the mesh)
+            const up = new THREE.Vector3(0, 0, 1);
+            const quaternion = new THREE.Quaternion();
+            quaternion.setFromUnitVectors(up, normal.clone().normalize());
+            group.setRotationFromQuaternion(quaternion);
+
+            return group;
+        }
         function setupMouseControls(element) {
             element.addEventListener('mousedown', (e) => {
                 isMouseDown = true;
@@ -683,7 +856,11 @@
             camera.position.x = Math.sin(targetX) * cameraDistance;
             camera.position.z = Math.cos(targetX) * cameraDistance;
             camera.position.y = Math.sin(targetY) * cameraDistance;
-            camera.lookAt(0, 0, 0);
+            if (window.currentLookAt) {
+                camera.lookAt(window.currentLookAt);
+            } else {
+                camera.lookAt(0, 0, 0);
+            }
         }
 
         function animate() {
@@ -801,10 +978,12 @@
                     specular: 0x111111, 
                     shininess: 30, 
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.5,
+                    depthWrite: false
 
                 });
                 mesh = new THREE.Mesh(geometry, material);
+                mesh.renderOrder = 1;
                 scene.add(mesh);
 
                 // Center and scale the model
@@ -813,13 +992,24 @@
                 const size = geometry.boundingBox.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
                 const scale = 100 / maxDim;
-        
+                
                 mesh.position.sub(center);
                 mesh.scale.set(scale, scale, scale);
                 mesh.rotation.x = -Math.PI / 2;
+                // Ensure renderer and camera match the (now visible) container size
+                try {
+                    const viewerEl = document.getElementById('viewer-3d');
+                    if (viewerEl && renderer && camera) {
+                        camera.aspect = Math.max(1, viewerEl.clientWidth) / Math.max(1, viewerEl.clientHeight);
+                        camera.updateProjectionMatrix();
+                        renderer.setPixelRatio(window.devicePixelRatio || 1);
+                        renderer.setSize(viewerEl.clientWidth, viewerEl.clientHeight);
+                    }
+                } catch (e) {
+                    console.warn('Resize update failed:', e);
+                }
                 document.getElementById('progress-container').style.display = 'none';
                 document.getElementById('loading').style.display = 'none';
-
 
             // Load brain STL
             const brainStlUrl = '/static/scaled_brain.stl?' + timestamp;
@@ -828,11 +1018,13 @@
                 const brainMaterial = new THREE.MeshPhongMaterial({ 
                     color: 0x888888,
                     specular: 0x111111,
-                    transparent: false,
+                    transparent: true,
                     opacity: 0.9, 
                     shininess: 30, 
+                    depthWrite: false
                 });
                 brainMesh = new THREE.Mesh(brainGeometry, brainMaterial);
+                brainMesh.renderOrder = 0;
                 scene.add(brainMesh);
 
                 // Apply same transformations as head mesh (but don't center independently)
@@ -899,6 +1091,13 @@
                 const rayDirection = adjustedTarget.clone().normalize();
                 raycaster.set(new THREE.Vector3(0, 0, 0), rayDirection);
                 const intersects = raycaster.intersectObject(mesh);
+                console.log('Raycaster hit count on skin mesh:', intersects.length);
+                if (intersects.length > 0) {
+                    console.log('Nearest intersection point:', intersects[0].point);
+                    console.log('Intersection distance from origin:', intersects[0].distance);
+                } else {
+                    console.warn('No intersection found — ray missed the skin mesh. Marker will float.');
+                }
 
                 let surfaceNormal = rayDirection; // fallback
                 if (intersects.length > 0) {
@@ -1203,14 +1402,36 @@
                 return isValid;
             }
 
-            // Show/hide target coordinates based on result type
+            // Show target controls only for Valter/MRI; hide for Beam-F3
             $('input[name="result_type"]').change(function() {
-                if ($('#valter').is(':checked')) {
+                const method = $(this).val();
+                const isMRIMethod = method === 'mri-value';
+                const showTargetControls = (method === 'valter' || method === 'mri-value');
+                if (showTargetControls) {
                     $('#target-coordinates').show();
+                    $('input[name="target_choice"]:checked').trigger('change');
                 } else {
                     $('#target-coordinates').hide();
+                    $('#default').prop('checked', true);
                     $('#custom-coordinates').hide();
                     $('#point_x, #point_y, #point_z').prop('required', false);
+                    $('#f3').prop('disabled', false);
+                    $('#f3-wrapper').css('opacity', '1');
+                }
+                if (isMRIMethod) {
+                    $('#measurement-row').hide();
+                    $('#mri-upload-section').show();
+                    $('#step2-title').text('Step 2: Upload MRI file');
+                    $('#nasion_inion, #tragus_tragus, #head_circ').prop('required', false);
+                } else {
+                    $('#mri-upload-section').hide();
+                    $('#measurement-row').show();
+                    $('#step2-title').text('Step 2: Enter anatomical measurements');
+                    $('#mri_file').val('');
+                    $('#mri_file_error').hide();
+                    $('#nasion_inion, #tragus_tragus, #head_circ').prop('required', true);
+                }
+                if ($(this).val() !== 'valter') {
                     $('#download-nifti-container').hide();
                 }
                 // Reset the result cells to dashes
@@ -1225,7 +1446,7 @@
                 $('#progress-container').hide();
             });
 
-            // Show/hide custom coordinate inputs when "Other" is selected
+            // Show/hide custom coordinate inputs and gate Beam-F3 availability
             $('input[name="target_choice"]').change(function() {
                 if ($('#custom').is(':checked')) {
                     $('#custom-coordinates').show();
@@ -1235,11 +1456,25 @@
                     $('#point_x, #point_y, #point_z').prop('required', false);
                 }
             });
+            $('input[name="result_type"]:checked').trigger('change');
 
             // Handle form submission
             $('#tms-form').submit(function(event) {
                 event.preventDefault();
-                
+                stopLoadingDots();
+                const resultType = $('input[name="result_type"]:checked').val();
+                const isMRIMode = $('#mri-upload-section').is(':visible');
+   
+                if (isMRIMode && resultType === 'mri-value') {
+                    const mriFile = $('#mri_file')[0].files[0];
+                    if (!mriFile) {
+                        showError('mri_file', 'Please select a NIfTI file');
+                        return false;
+                    }
+                    handleMRISegmentation(mriFile);
+                    return false;
+                }
+                event.preventDefault();
                 // Validate measurements first
                 if (!validateMeasurements()) {
                     return false;
@@ -1247,7 +1482,6 @@
                 
                 $('#step3-placeholder').hide();
                 $('#loading').show();
-                var resultType = $('input[name="result_type"]:checked').val();
 
                 if (resultType === 'valter') {
                     $('#progress-container').show(); // Only show progress bar for Valter method
@@ -1287,12 +1521,11 @@
                 $('.step3-container').get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                 var formData = $(this).serialize();
-                var resultType = $('input[name="result_type"]:checked').val();
                 
                 console.log('Submitting form data:', formData);
                 console.log('Result type:', resultType);
 
-                // Both methods now use AJAX
+                // Both methods use AJAX
                 $.ajax({
                     url: '/scale',
                     type: 'POST',
@@ -1336,7 +1569,6 @@
                             // Hide the loading/placeholder elements
                             $('#loading').hide();
                             $('#step3-placeholder').hide();
-
                         }
                     },
                     error: function(xhr, status, error) {
@@ -1355,6 +1587,534 @@
                     }
                 });
             });
+            // New function to handle MRI segmentation
+            function handleMRISegmentation(mriFile) {
+                $('#step3-placeholder').hide();
+                $('#loading').show();
+                $('#loading-text').text("Uploading MRI file...");
+                
+                const formData = new FormData();
+                formData.append('mri_file', mriFile);
+                formData.append('result_type', 'mri_segmentation');
+                const targetChoice = $('input[name="target_choice"]:checked').val() || 'default';
+                formData.append('target_choice', targetChoice);
+                if (targetChoice === 'custom') {
+                    const pointX = $('#point_x').val();
+                    const pointY = $('#point_y').val();
+                    const pointZ = $('#point_z').val();
+                    if (pointX === '' || pointY === '' || pointZ === '') {
+                        $('#loading').hide();
+                        $('#progress-container').hide();
+                        $('#step3-placeholder').show();
+                        alert('Please enter all custom MNI coordinates (X, Y, Z).');
+                        return;
+                    }
+                    formData.append('point_x', pointX);
+                    formData.append('point_y', pointY);
+                    formData.append('point_z', pointZ);
+                }
+                
+                $('.step3-container').get(0).scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                $.ajax({
+                    url: '/process_mri',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.error) {
+                            alert('Error: ' + response.error);
+                            $('#loading').hide();
+                            $('#progress-container').hide();
+                            $('#step3-placeholder').show();
+                            return;
+                        }
+                        if (response.task_id) {
+                            startLoadingDots("Processing MRI");
+                            pollTaskStatus(response.task_id);
+                        }
+                    },
+                    error: function(xhr) {
+                        stopLoadingDots();
+                        $('#loading').hide();
+                        $('#progress-container').hide();
+                        $('#step3-placeholder').show();
+                        let errorMessage = 'Upload failed';
+                        try {
+                            errorMessage = JSON.parse(xhr.responseText).error || errorMessage;
+                        } catch (e) {}
+                        alert('Error: ' + errorMessage);
+                    }
+                });
+            }
+            function pollTaskStatus(taskId) {
+                const pollInterval = setInterval(function() {
+                    $.ajax({
+                        url: '/status/' + taskId,
+                        type: 'GET',
+                        success: function(response) {
+                            if (response.state === 'PROCESSING') {
+                                startLoadingDots(response.status || "Processing MRI");
+                            } else if (response.state === 'SUCCESS') {
+                                clearInterval(pollInterval);
+                                stopLoadingDots("Rendering 3D model...");
+                                console.log('Full task result from server:', JSON.stringify(response.result));
+                                displaySegmentedMRI(response.result);
+                            } else if (response.state === 'FAILURE') {
+                                clearInterval(pollInterval);
+                                stopLoadingDots();
+                                $('#loading').hide();
+                                $('#progress-container').hide();
+                                $('#step3-placeholder').show();
+                                alert('MRI processing failed: ' + response.status);
+                            }
+                        },
+                        error: function() {
+                            clearInterval(pollInterval);
+                            stopLoadingDots();
+                            $('#loading').hide();
+                            $('#progress-container').hide();
+                            $('#step3-placeholder').show();
+                            alert('Error checking processing status');
+                        }
+                    });
+                }, 2000);
+            }
+            function displaySegmentedMRI(result) {
+                window.pendingMriResult = result;
+                
+                // Clear all previous visualization elements from Valter/Beam-F3 models
+                if (rawTargetMarker) {
+                    scene.remove(rawTargetMarker);
+                    if (rawTargetMarker.geometry) rawTargetMarker.geometry.dispose();
+                    if (rawTargetMarker.material) rawTargetMarker.material.dispose();
+                    rawTargetMarker = null;
+                }
+                if (dlpfcSphere) {
+                    scene.remove(dlpfcSphere);
+                    if (dlpfcSphere.geometry) dlpfcSphere.geometry.dispose();
+                    if (dlpfcSphere.material) dlpfcSphere.material.dispose();
+                    dlpfcSphere = null;
+                }
+                if (midlineIndicator) {
+                    scene.remove(midlineIndicator);
+                    if (midlineIndicator.geometry) midlineIndicator.geometry.dispose();
+                    if (midlineIndicator.material) midlineIndicator.material.dispose();
+                    midlineIndicator = null;
+                }
+                if (vertexMarker) {
+                    scene.remove(vertexMarker);
+                    // vertexMarker is a THREE.Group containing tube geometries
+                    if (vertexMarker.children) {
+                        vertexMarker.children.forEach(child => {
+                            if (child.geometry) child.geometry.dispose();
+                            if (child.material) child.material.dispose();
+                        });
+                    }
+                    vertexMarker = null;
+                }
+                if (targetMarker) {
+                    scene.remove(targetMarker);
+                    // targetMarker is a THREE.Group containing tube geometries
+                    if (targetMarker.children) {
+                        targetMarker.children.forEach(child => {
+                            if (child.geometry) child.geometry.dispose();
+                            if (child.material) child.material.dispose();
+                        });
+                    }
+                    targetMarker = null;
+                }
+                if (targetCone) {
+                    scene.remove(targetCone);
+                    if (targetCone.geometry) targetCone.geometry.dispose();
+                    if (targetCone.material) targetCone.material.dispose();
+                    targetCone = null;
+                }
+                
+                // Clear all path tubes and arrow cones
+                pathLines.forEach(line => {
+                    scene.remove(line);
+                    if (line.geometry) line.geometry.dispose();
+                    if (line.material) line.material.dispose();
+                });
+                pathLines = [];
+
+                arrowCones.forEach(cone => {
+                    scene.remove(cone);
+                    if (cone.geometry) cone.geometry.dispose();
+                    if (cone.material) cone.material.dispose();
+                });
+                arrowCones = [];
+                
+                if (!scene) init3DViewer();
+
+                // 4. Add Red Target Cone at Scalp Location
+                if (result.target_coords) {
+                    const targetPos = new THREE.Vector3(...result.target_coords);
+                    const coneGeo = new THREE.ConeGeometry(3, 10, 16);
+                    const coneMat = new THREE.MeshPhongMaterial({ color: 0xff0000 }); // Red
+                    targetCone = new THREE.Mesh(coneGeo, coneMat);
+                    
+                    targetCone.position.copy(targetPos);
+                    targetCone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), targetPos.clone().normalize());
+                    scene.add(targetCone);
+                }
+                $('#image-placeholder').hide();
+                $('#viewer-container').show();
+
+                if (result.circumferential_dist !== undefined && result.vertex_dist_adjusted !== undefined) {
+                    $('#circumferential-result').text(result.circumferential_dist.toFixed(1) + ' cm');
+                    $('#vertex-result').text(result.vertex_dist_adjusted.toFixed(1) + ' cm');
+                }
+                
+                // Clear existing meshes/markers
+                if (mesh) { scene.remove(mesh); mesh = null; }
+                if (brainMesh) { scene.remove(brainMesh); brainMesh = null; }
+                
+                const skinUrl = '/static/' + result.skin_stl + '?t=' + Date.now();
+                loadSTL(skinUrl, function(skinGeometry) {
+                    const skinMaterial = new THREE.MeshPhongMaterial({
+                        color: 0xE0AC69,
+                        specular: 0x111111,
+                        shininess: 30,
+                        transparent: true,
+                        opacity: 0.5,
+                        depthWrite: false
+                    });
+                    mesh = new THREE.Mesh(skinGeometry, skinMaterial);
+                    mesh.renderOrder = 1;
+                    
+                    // DEBUG: Check raw geometry bounds
+                    skinGeometry.computeBoundingBox();
+                    const center = new THREE.Vector3();
+                    skinGeometry.boundingBox.getCenter(center);
+                    skinGeometry.translate(-center.x, -center.y, -center.z);
+                    console.log('=== SKIN MESH DEBUG ===');
+                    console.log('Raw geometry center:', center);
+                    console.log('Raw geometry size:', skinGeometry.boundingBox.getSize(new THREE.Vector3()));
+                    
+                    scene.add(mesh);
+                    
+                    // Now calculate scale
+                    const size = skinGeometry.boundingBox.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 100 / maxDim;
+                    console.log('Scale factor:', scale);
+                    console.log('Max dimension:', maxDim);
+
+                    // Apply only scale and rotation (no position offset needed since geometry is centered)
+                    mesh.scale.set(scale, scale, scale);
+                    mesh.rotation.x = -Math.PI / 2;
+                    mesh.updateMatrixWorld(true);
+                    // Make sure renderer/camera updated to current container size after adding mesh
+                    try {
+                        const viewerEl = document.getElementById('viewer-3d');
+                        if (viewerEl && renderer && camera) {
+                            camera.aspect = Math.max(1, viewerEl.clientWidth) / Math.max(1, viewerEl.clientHeight);
+                            camera.updateProjectionMatrix();
+                            renderer.setPixelRatio(window.devicePixelRatio || 1);
+                            renderer.setSize(viewerEl.clientWidth, viewerEl.clientHeight);
+                        }
+                    } catch (e) {
+                        console.warn('Resize update failed:', e);
+                    }
+                    
+                    // Verify final position
+                    const finalBox = new THREE.Box3().setFromObject(mesh);
+                    const finalCenter = finalBox.getCenter(new THREE.Vector3());
+                    console.log('Final world-space center:', finalCenter);
+                    console.log('(should be near 0,0,0)');
+
+                    // Reset camera lookAt to origin
+                    window.currentLookAt = new THREE.Vector3(0, 0, 0);
+
+                    // Convert backend MRI coordinates (subject space) into current viewer world-space.
+                    const transformMriPointToWorld = (point) => {
+                        const v = new THREE.Vector3(
+                            point[0] - center.x,
+                            point[1] - center.y,
+                            point[2] - center.z
+                        );
+                        v.multiplyScalar(scale);
+                        v.applyAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
+                        return v;
+                    };
+
+                    const shortenMriPolylineByDistance = (points, distance) => {
+                        if (!points || points.length < 2 || distance <= 0) return points;
+                        const newPoints = points.map(p => p.clone());
+                        let remaining = distance;
+                        for (let i = newPoints.length - 1; i > 0 && remaining > 0; i--) {
+                            const end = newPoints[i];
+                            const start = newPoints[i - 1];
+                            const segLen = end.distanceTo(start);
+                            if (segLen > remaining) {
+                                const dir = new THREE.Vector3().subVectors(end, start).normalize();
+                                newPoints[i] = end.clone().sub(dir.multiplyScalar(remaining));
+                                remaining = 0;
+                                break;
+                            } else {
+                                newPoints.pop();
+                                remaining -= segLen;
+                            }
+                        }
+                        if (newPoints.length < 2) return points;
+                        return newPoints;
+                    };
+
+                    const addMriArrowHead = (startPoint, endPoint, color, size = 3) => {
+                        const direction = new THREE.Vector3().subVectors(endPoint, startPoint).normalize();
+                        const coneHeight = size * 2.0;
+                        const coneRadius = size * 0.6;
+                        const coneGeometry = new THREE.ConeGeometry(coneRadius, coneHeight, 16);
+                        const coneMaterial = new THREE.MeshBasicMaterial({
+                            color: color,
+                            transparent: true,
+                            opacity: 1.0,
+                            depthTest: false,
+                            depthWrite: false,
+                            polygonOffset: true,
+                            polygonOffsetFactor: -1,
+                            polygonOffsetUnits: -1
+                        });
+                        const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+                        const tipNudge = 0.3;
+                        const halfHeightOffset = direction.clone().multiplyScalar(coneHeight / 2.0);
+                        const forwardNudge = direction.clone().multiplyScalar(tipNudge);
+                        cone.position.copy(endPoint.clone().sub(halfHeightOffset).add(forwardNudge));
+                        const axis = new THREE.Vector3(0, 1, 0);
+                        const quaternion = new THREE.Quaternion().setFromUnitVectors(axis, direction);
+                        cone.setRotationFromQuaternion(quaternion);
+                        cone.renderOrder = 200;
+                        scene.add(cone);
+                        arrowCones.push(cone);
+                    };
+
+                    const addMriPath = (pathPoints, color) => {
+                        if (!pathPoints || pathPoints.length < 2) return;
+                        const transformedPoints = pathPoints.map((p) => {
+                            const worldPoint = transformMriPointToWorld(p);
+                            // Lift path slightly above scalp so it remains visible from frontal views.
+                            const outward = worldPoint.clone().normalize().multiplyScalar(1.5);
+                            return worldPoint.add(outward);
+                        });
+                        const arrowSize = 3;
+                        const coneHeight = arrowSize * 2.0;
+                        const overlapCompensation = 0.4;
+                        const totalShorten = coneHeight - overlapCompensation;
+                        const shortenedPoints = shortenMriPolylineByDistance(transformedPoints, totalShorten);
+                        const curve = new THREE.CatmullRomCurve3(shortenedPoints);
+                        const tubularSegments = Math.max(transformedPoints.length * 2, 32);
+                        const tubeGeometry = new THREE.TubeGeometry(curve, tubularSegments, 1.2, 12, false);
+                        const tubeMaterial = new THREE.MeshBasicMaterial({
+                            color: color,
+                            transparent: true,
+                            opacity: 1.0,
+                            depthTest: false,
+                            depthWrite: false,
+                            side: THREE.DoubleSide,
+                            polygonOffset: true,
+                            polygonOffsetFactor: 1,
+                            polygonOffsetUnits: 1
+                        });
+                        const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+                        tube.renderOrder = 190;
+                        scene.add(tube);
+                        pathLines.push(tube);
+                        const startPoint = transformedPoints[Math.max(transformedPoints.length - 2, 0)];
+                        const endPoint = transformedPoints[transformedPoints.length - 1];
+                        addMriArrowHead(startPoint, endPoint, color, arrowSize);
+                    };
+
+                    let mriScalpTargetWorld = null;
+
+                    const brainUrl = '/static/' + result.brain_stl + '?t=' + Date.now();
+                    loadSTL(brainUrl, function(brainGeometry) {
+                        const brainMaterial = new THREE.MeshPhongMaterial({ 
+                            color: 0x888888, 
+                            specular: 0x111111, 
+                            transparent: true,
+                            opacity: 0.9,
+                            shininess: 30,
+                            depthWrite: false  
+                        });
+                        brainMesh = new THREE.Mesh(brainGeometry, brainMaterial);
+                        brainMesh.renderOrder = 0;
+                        
+                        // DEBUG: Check raw brain geometry
+                        brainGeometry.computeBoundingBox();
+                        const brainRawCenter = brainGeometry.boundingBox.getCenter(new THREE.Vector3());
+                        console.log('=== BRAIN MESH DEBUG ===');
+                        console.log('Raw brain geometry center:', brainRawCenter);
+                        
+                        // Center brain geometry vertices
+                        const brainVertices = brainGeometry.attributes.position.array;
+                        for (let i = 0; i < brainVertices.length; i += 3) {
+                            brainVertices[i]   -= center.x;
+                            brainVertices[i+1] -= center.y;
+                            brainVertices[i+2] -= center.z;
+                        }
+                        brainGeometry.attributes.position.needsUpdate = true;
+                        brainGeometry.computeBoundingBox();
+                        
+                        const brainCenteredCenter = brainGeometry.boundingBox.getCenter(new THREE.Vector3());
+                        console.log('After centering brain vertices, geometry center:', brainCenteredCenter);
+                        
+                        scene.add(brainMesh);
+                            
+                        // Apply same scale and rotation
+                        brainMesh.scale.set(scale, scale, scale);
+                        brainMesh.rotation.x = -Math.PI / 2;
+                        brainMesh.updateMatrixWorld(true);
+                        const brainWorldBox = new THREE.Box3().setFromObject(brainMesh);
+                        const brainWorldMin = brainWorldBox.min;
+                        const brainWorldMax = brainWorldBox.max;
+                        console.log('Brain world-space bounding box min:', brainWorldMin);
+                        console.log('Brain world-space bounding box max:', brainWorldMax);
+                        console.log('Brain world-space size:', brainWorldBox.getSize(new THREE.Vector3()));
+
+                        // Draw MRI overlays in the same coordinate frame as DLPFC marker (brainRawCenter-based).
+                        if (result.vertical_path && result.vertical_path.length > 1) {
+                            addMriPath(result.vertical_path, 0x228B22);
+                            mriScalpTargetWorld = transformMriPointToWorld(
+                                result.vertical_path[result.vertical_path.length - 1]
+                            );
+                        }
+                        if (result.horizontal_path && result.horizontal_path.length > 1) {
+                            addMriPath(result.horizontal_path, 0x002366);
+                            if (!mriScalpTargetWorld) {
+                                mriScalpTargetWorld = transformMriPointToWorld(
+                                    result.horizontal_path[result.horizontal_path.length - 1]
+                                );
+                            }
+                        }
+
+                        const vertexCoords =
+                            result.vertex_coords ||
+                            result.cz_coords ||
+                            (result.vertical_path && result.vertical_path[0]);
+                        if (vertexCoords) {
+                            const vertexPoint = transformMriPointToWorld(vertexCoords);
+                            const vertexNormal = new THREE.Vector3(0, 1, 0);
+                            vertexMarker = createXMarker(vertexPoint, vertexNormal, 0x228B22, 3);
+                            if (vertexMarker.children) {
+                                vertexMarker.children.forEach(child => {
+                                    if (child.material) child.material.depthTest = false;
+                                    child.renderOrder = 210;
+                                });
+                            }
+                            scene.add(vertexMarker);
+                        }
+
+                        const fpzCoords = result.fpz_coords || (result.horizontal_path && result.horizontal_path[0]);
+                        if (fpzCoords) {
+                            const fpzPoint = transformMriPointToWorld(fpzCoords);
+                            const lineLength = 10;
+                            const lineStart = new THREE.Vector3(0, lineLength / 2, 0);
+                            const lineEnd = new THREE.Vector3(0, -lineLength / 2, 0);
+                            const rotationAxis = new THREE.Vector3(0, 1, 0);
+                            const rotationAngle = THREE.MathUtils.degToRad(20);
+                            lineStart.applyAxisAngle(rotationAxis, rotationAngle).add(fpzPoint);
+                            lineEnd.applyAxisAngle(rotationAxis, rotationAngle).add(fpzPoint);
+
+                            const midlinePath = new THREE.CatmullRomCurve3([lineStart, lineEnd]);
+                            const tubeGeometry = new THREE.TubeGeometry(midlinePath, 1, 0.5, 8, false);
+                            const tubeMaterial = new THREE.MeshBasicMaterial({
+                                color: 0x002366,
+                                transparent: true,
+                                opacity: 1.0,
+                                depthTest: false,
+                                depthWrite: false,
+                                polygonOffset: true,
+                                polygonOffsetFactor: 1,
+                                polygonOffsetUnits: 1
+                            });
+                            midlineIndicator = new THREE.Mesh(tubeGeometry, tubeMaterial);
+                            midlineIndicator.renderOrder = 205;
+                            scene.add(midlineIndicator);
+                            pathLines.push(midlineIndicator);
+                        }
+
+                        // Place DLPFC marker if coordinates were returned
+                        if (result.DLPFC_coords) {
+                            console.log('DLPFC_coords received:', result.DLPFC_coords);
+                            
+                            // Clear any previous markers
+                            if (targetMarker) { scene.remove(targetMarker); targetMarker = null; }
+                            if (rawTargetMarker) { scene.remove(rawTargetMarker); rawTargetMarker = null; }
+
+                            // Subtract the same rawCenter offset applied to the skin geometry vertices,
+                            // then apply the mesh's matrixWorld (scale + rotation) to land in the right spot
+                            const dlpfc = result.DLPFC_coords;
+                            console.log('=== DLPFC PLACEMENT DEBUG ===');
+                            console.log('Skin rawCenter (used for skin centering):', center);
+                            console.log('Brain rawCenter (should be used for DLPFC offset):', brainRawCenter);
+                            console.log('Are they the same?', center.equals(brainRawCenter));
+
+                            // MRI coords are in patient voxel space — apply scale then
+                            // manually apply the -PI/2 X rotation to match the STL mesh orientation.
+                            const targetVec = transformMriPointToWorld(dlpfc);
+                            console.log('DLPFC raw coords [x,y,z]:', dlpfc);
+                            console.log('Offsets applied — x:', dlpfc[0] - brainRawCenter.x, ' y:', dlpfc[1] - brainRawCenter.y, ' z:', dlpfc[2] - brainRawCenter.z);
+                            console.log('After scale — x:', (dlpfc[0] - brainRawCenter.x) * scale, ' y:', (dlpfc[1] - brainRawCenter.y) * scale, ' z:', (dlpfc[2] - brainRawCenter.z) * scale);
+                            console.log('rawCenter used for offset:', center);
+                            console.log('targetVec BEFORE rotation:', targetVec.clone());
+                            console.log('rawCenter used for offset:', window.debugcenter);
+
+                            console.log('Mesh rotation.x (radians):', mesh.rotation.x, '→', (mesh.rotation.x * 180 / Math.PI).toFixed(1), 'deg');
+                            console.log('Marker inside brain bounds?', brainWorldBox.containsPoint(targetVec));
+                            console.log('Marker position:', targetVec);
+
+                            console.log('targetVec after scale+rotation:', targetVec);
+
+                            // Red X marker: anchor to the same scalp endpoint used by MRI paths
+                            // so tubes/arrows and target marker are spatially consistent.
+                            const scalpPosition = mriScalpTargetWorld ? mriScalpTargetWorld.clone() : targetVec.clone();
+                            const surfaceNormal = scalpPosition.clone().normalize();
+                            targetMarker = createXMarker(scalpPosition, surfaceNormal, 0xff0000, 4);
+                            scene.add(targetMarker);
+                            if (!rawTargetMarker) {
+                                const rawSphereGeometry = new THREE.SphereGeometry(4, 32, 32);
+                                const rawSphereMaterial = new THREE.MeshBasicMaterial({ color: 0x800080 });
+                                rawTargetMarker = new THREE.Mesh(rawSphereGeometry, rawSphereMaterial);
+                                scene.add(rawTargetMarker);
+                            }
+                            // Purple sphere stays at the brain target (targetVec)
+                            rawTargetMarker.position.copy(targetVec);
+
+                            console.log('MRI DLPFC coords from server:', dlpfc);
+                            console.log('Final marker position:', targetVec);
+                        }
+                        else {
+                            console.warn('DLPFC_coords missing from result — marker will not be placed');
+                        }
+                        // Verify final brain position
+                        const brainFinalBox = new THREE.Box3().setFromObject(brainMesh);
+                        const brainFinalCenter = brainFinalBox.getCenter(new THREE.Vector3());
+                        console.log('Final brain world-space center:', brainFinalCenter);
+                        
+                        // Set camera parameters
+                        cameraDistance = maxDim * 0.5;
+                        targetX = Math.PI / 4;
+                        targetY = Math.PI / 6;
+                        updateCamera();
+                        
+                        $('#loading').hide();
+                        $('#progress-container').hide();
+                    }, function(error) {
+                        console.error('Error loading brain:', error);
+                        $('#loading').hide();
+                        $('#progress-container').hide();
+                        alert('Error loading brain mesh');
+                    });
+                }, function(error) {
+                    console.error('Error loading skin:', error);
+                    $('#loading').hide();
+                    $('#progress-container').hide();
+                    alert('Error loading skin mesh');
+                });
+            }
 
             // Handle window resize for 3D viewer
             $(window).resize(function() {
@@ -1369,6 +2129,5 @@
             });
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

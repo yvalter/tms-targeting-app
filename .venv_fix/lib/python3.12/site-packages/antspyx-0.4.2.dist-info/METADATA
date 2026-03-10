@@ -1,0 +1,24 @@
+Metadata-Version: 2.1
+Name: antspyx
+Version: 0.4.2
+Summary: Advanced Normalization Tools in Python
+Home-page: https://github.com/ANTsX/ANTsPy
+Author: Brian B. Avants and Nicholas Cullen
+Author-email: stnava@gmail.com
+Classifier: Programming Language :: Python :: 3.9
+Description-Content-Type: text/markdown; charset=UTF-8; variant=GFM
+License-File: LICENSE
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: scikit-image
+Requires-Dist: scikit-learn
+Requires-Dist: statsmodels
+Requires-Dist: webcolors
+Requires-Dist: matplotlib
+Requires-Dist: pyyaml
+Requires-Dist: chart-studio
+Requires-Dist: Pillow
+Requires-Dist: nibabel
+
+Advanced Normalization Tools in Python wraps core C++-based ANTs tools for registration, segmentation and other basic processing.
