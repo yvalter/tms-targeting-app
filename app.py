@@ -25,6 +25,8 @@ import shutil
 from werkzeug.utils import secure_filename
 import scipy.spatial.transform as sst
 import resource
+import boto3
+from botocore.exceptions import BotoCoreError, ClientError
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -41,12 +43,20 @@ celery.conf.update(app.config)
 
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
 ALLOWED_EXTENSIONS = {'nii', 'nii.gz'}
+S3_BUCKET = os.environ.get('S3_BUCKET', '').strip()
+AWS_REGION = os.environ.get('AWS_REGION', '').strip()
 
 def allowed_file(filename):
     """Check if file has allowed extension"""
     return '.' in filename and \
            any(filename.lower().endswith('.' + ext) for ext in ALLOWED_EXTENSIONS)
 EPS = 1e-9  
+
+def get_s3_client():
+    """Return a boto3 S3 client using environment credentials."""
+    if AWS_REGION:
+        return boto3.client("s3", region_name=AWS_REGION)
+    return boto3.client("s3")
 
 # Method-specific templates and landmark coordinates.
 # Keep these separate because Valter and MRI pipelines use different mesh sets.
@@ -746,11 +756,23 @@ def scale_route():
         return jsonify({'error': f"Processing error: {str(e)}"}), 500
 
 @celery.task(bind=True)
-def process_mri_segmentation_task(self, nifti_path, output_dir, session_id, target_mni_ras=None):
-    if not os.path.exists(nifti_path):
-        raise FileNotFoundError(f"Input file not found: {nifti_path}")
+def process_mri_segmentation_task(self, s3_key, file_extension, output_dir, session_id, target_mni_ras=None):
+    if not S3_BUCKET:
+        raise RuntimeError("S3_BUCKET is not configured")
+    if not s3_key:
+        raise FileNotFoundError("S3 key not provided")
 
     try:
+        # Download MRI from S3 to local temp for processing
+        temp_dir = tempfile.gettempdir()
+        local_path = os.path.join(temp_dir, f"input_{session_id}{file_extension}")
+        s3_client = get_s3_client()
+        try:
+            s3_client.download_file(S3_BUCKET, s3_key, local_path)
+        except (BotoCoreError, ClientError) as e:
+            raise RuntimeError(f"Failed to download MRI from S3: {e}")
+
+        nifti_path = local_path
         generated_files = {}
         log_memory_usage("MRI task start")
 
@@ -877,12 +899,17 @@ def process_mri_segmentation_task(self, nifti_path, output_dir, session_id, targ
             except Exception as e:
                 logger.error(f"Failed to calculate MRI-based scalp measurements: {e}")
             
-        # Cleanup
+        # Cleanup local temp file
         if os.path.exists(nifti_path):
             os.remove(nifti_path)
-            
-        if os.path.exists(nifti_path):
-            os.remove(nifti_path)
+
+        # Cleanup S3 object
+        try:
+            if S3_BUCKET and s3_key:
+                s3_client = get_s3_client()
+                s3_client.delete_object(Bucket=S3_BUCKET, Key=s3_key)
+        except (BotoCoreError, ClientError) as e:
+            logger.warning(f"Failed to delete S3 object {s3_key}: {e}")
 
         # Schedule session file cleanup after delay
         import threading
@@ -896,6 +923,12 @@ def process_mri_segmentation_task(self, nifti_path, output_dir, session_id, targ
 
     except Exception as e:
         logger.error(f"FATAL ERROR: {str(e)}")
+        try:
+            if S3_BUCKET and s3_key:
+                s3_client = get_s3_client()
+                s3_client.delete_object(Bucket=S3_BUCKET, Key=s3_key)
+        except (BotoCoreError, ClientError) as se:
+            logger.warning(f"Failed to delete S3 object {s3_key} after error: {se}")
         cleanup_session_files(session_id, output_dir)
         raise Exception(f"Processing failed: {str(e)}")
     
@@ -928,18 +961,31 @@ def process_mri_route():
             target_mni_ras = [-38.0, 44.0, 26.0]
 
         session_id = str(uuid.uuid4())
-        temp_dir = tempfile.gettempdir()
         static_dir = os.path.join(app.root_path, 'static')
        
         filename = secure_filename(file.filename)
         file_extension = "".join(Path(filename).suffixes)
-        
-        # Construct the temporary path using the actual extension
-        input_path = os.path.join(temp_dir, f"input_{session_id}{file_extension}")
-        file.save(input_path)
+
+        if not S3_BUCKET:
+            return jsonify({'error': 'S3_BUCKET is not configured'}), 500
+
+        # Upload MRI to S3 for worker access
+        s3_key = f"uploads/{session_id}{file_extension}"
+        try:
+            s3_client = get_s3_client()
+            file.stream.seek(0)
+            s3_client.upload_fileobj(
+                file.stream,
+                S3_BUCKET,
+                s3_key,
+                ExtraArgs={"ContentType": file.mimetype or "application/octet-stream"}
+            )
+        except (BotoCoreError, ClientError) as e:
+            logger.error(f"Failed to upload MRI to S3: {e}")
+            return jsonify({'error': 'Failed to upload MRI to storage'}), 500
        
         task = process_mri_segmentation_task.apply_async(
-            args=[input_path, static_dir, session_id, target_mni_ras]
+            args=[s3_key, file_extension, static_dir, session_id, target_mni_ras]
         )
        
         return jsonify({

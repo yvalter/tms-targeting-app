@@ -49,3 +49,5 @@ antspyx==0.5.4
 numpy-stl==3.1.2
 
 redis==5.0.4
+
+boto3==1.34.162
