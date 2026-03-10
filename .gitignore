@@ -11,3 +11,11 @@ static/scaled_*.stl
 
 # Other temporary files
 *.log
+.venv_fix/
+.venv_new/
+*.nii
+*.nii.gz
+.DS_Store
+static/*.stl
+static/*.nii
+static/*.nii.gz

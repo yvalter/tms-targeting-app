@@ -1,6 +1,0 @@
-#!/Users/Soterixmedical/tms-targeting-app/.venv_fix/bin/python3.12
-import sys
-from stl.main import to_binary
-if __name__ == '__main__':
-    sys.argv[0] = sys.argv[0].removesuffix('.exe')
-    sys.exit(to_binary())
