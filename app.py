@@ -58,6 +58,18 @@ def get_s3_client():
         return boto3.client("s3", region_name=AWS_REGION)
     return boto3.client("s3")
 
+def upload_and_presign(local_path, s3_key, expires_in=3600):
+    """Upload a local file to S3 and return a presigned GET URL."""
+    if not S3_BUCKET:
+        raise RuntimeError("S3_BUCKET is not configured")
+    s3_client = get_s3_client()
+    s3_client.upload_file(local_path, S3_BUCKET, s3_key)
+    return s3_client.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": S3_BUCKET, "Key": s3_key},
+        ExpiresIn=expires_in
+    )
+
 # Method-specific templates and landmark coordinates.
 # Keep these separate because Valter and MRI pipelines use different mesh sets.
 VALTER_TEMPLATES = {
@@ -826,6 +838,11 @@ def process_mri_segmentation_task(self, s3_key, file_extension, output_dir, sess
             logger.info(f"Head STL bounds max: {mesh_check.bounds[1]}")
             apply_transform_to_stl(head_template_stl, affine_matrix_head, skin_stl_path)
             generated_files['skin_stl'] = skin_stl_name
+            try:
+                s3_key_out = f"outputs/{skin_stl_name}"
+                generated_files['skin_stl_url'] = upload_and_presign(skin_stl_path, s3_key_out)
+            except (BotoCoreError, ClientError, RuntimeError) as e:
+                logger.warning(f"Failed to upload/presign skin STL: {e}")
             logger.info(f"Skin STL written: {skin_stl_path}")
             log_memory_usage("After skin STL transform")
         else:
@@ -838,6 +855,11 @@ def process_mri_segmentation_task(self, s3_key, file_extension, output_dir, sess
             brain_stl_path = os.path.join(output_dir, brain_stl_name)
             apply_transform_to_stl(brain_template_stl, affine_matrix_brain, brain_stl_path)
             generated_files['brain_stl'] = brain_stl_name
+            try:
+                s3_key_out = f"outputs/{brain_stl_name}"
+                generated_files['brain_stl_url'] = upload_and_presign(brain_stl_path, s3_key_out)
+            except (BotoCoreError, ClientError, RuntimeError) as e:
+                logger.warning(f"Failed to upload/presign brain STL: {e}")
             logger.info(f"Brain STL written: {brain_stl_path}")
             log_memory_usage("After brain STL transform")
         else:
