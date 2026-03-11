@@ -1683,6 +1683,10 @@
             }
             function displaySegmentedMRI(result) {
                 window.pendingMriResult = result;
+                const withCacheBuster = (url) => {
+                    const sep = url.includes('?') ? '&' : '?';
+                    return url + sep + 't=' + Date.now();
+                };
                 
                 // Clear all previous visualization elements from Valter/Beam-F3 models
                 if (rawTargetMarker) {
@@ -1772,7 +1776,7 @@
                 if (mesh) { scene.remove(mesh); mesh = null; }
                 if (brainMesh) { scene.remove(brainMesh); brainMesh = null; }
                 
-                const skinUrl = (result.skin_stl_url || ('/static/' + result.skin_stl)) + '?t=' + Date.now();
+                const skinUrl = withCacheBuster(result.skin_stl_url || ('/static/' + result.skin_stl));
                 loadSTL(skinUrl, function(skinGeometry) {
                     const skinMaterial = new THREE.MeshPhongMaterial({
                         color: 0xE0AC69,
@@ -1929,7 +1933,7 @@
 
                     let mriScalpTargetWorld = null;
 
-                    const brainUrl = (result.brain_stl_url || ('/static/' + result.brain_stl)) + '?t=' + Date.now();
+                    const brainUrl = withCacheBuster(result.brain_stl_url || ('/static/' + result.brain_stl));
                     loadSTL(brainUrl, function(brainGeometry) {
                         const brainMaterial = new THREE.MeshPhongMaterial({ 
                             color: 0x888888, 
