@@ -1684,7 +1684,8 @@
             function displaySegmentedMRI(result) {
                 window.pendingMriResult = result;
                 const withCacheBuster = (url) => {
-                    if (url.startsWith('http')) return url;
+                    if (!url) return url;
+                    if (!url.startsWith('/static/')) return url;
                     const sep = url.includes('?') ? '&' : '?';
                     return url + sep + 't=' + Date.now();
                 };
