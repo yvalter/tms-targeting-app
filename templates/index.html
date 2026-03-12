@@ -304,15 +304,25 @@
         @media (max-width: 768px) {
             .measurement-row {
                 flex-direction: column;
-                text-align: center;
+                text-align: left;
+            }
+
+            .measurement-container {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
             }
 
             .measurement-input-section {
-                margin-bottom: 5px;
+                margin-bottom: 0;
+                text-align: left;
+                flex: 1;
             }
 
             .measurement-image-section {
-                order: 0; /* Ensure image stays below */
+                order: 0;
+                flex: 1;
             }
 
             .measurement-figure {
