@@ -888,7 +888,7 @@ def download_nifti(session_id):
         scale_matrix = np.array(json.loads(scale_matrix_str), dtype=float)
         
         # Generate the NIfTI file on-demand
-        input_nifti = 'static/mni_unscaled.nii'
+        input_nifti = 'static/MNI152_T1_2mm.nii.gz'
         temp_dir = tempfile.gettempdir()
         nifti_path = os.path.join(temp_dir, f'scaled_mni_{session_id}.nii')
         
